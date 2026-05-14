@@ -1,0 +1,31 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "dev",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            // Adicione argumentos extras se quiser customizar o modo dev
+            // "args": ["--dart-define=ENV=dev"]
+        },
+        {
+            "name": "prod",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            // Adicione argumentos extras se quiser customizar o modo prod
+            // "args": ["--dart-define=ENV=prod"]
+        },
+        /* {
+            "name": "pakmart (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        } */
+    ]
+}
