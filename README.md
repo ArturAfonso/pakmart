@@ -1,27 +1,30 @@
 
+
 # pakmart
 
-**pakmart** é uma loja de aplicativos desenvolvida em Dart/Flutter para Linux, focada inicialmente na instalação e gerenciamento de apps Flatpak.
+*[Leia em português](README-pt.md)*
 
-## Sobre o projeto
+**pakmart** is an app store developed in Dart/Flutter for Linux, initially focused on installing and managing Flatpak apps.
 
-O objetivo do pakmart é facilitar a instalação, atualização e remoção de aplicativos Flatpak em distribuições Linux, oferecendo uma interface moderna, amigável e centralizada.
+## About the project
 
-### Futuro
+The goal of pakmart is to make it easy to install, update, and remove Flatpak applications on Linux distributions, providing a modern, user-friendly, and centralized interface.
 
-Há planos para expandir o suporte, permitindo o gerenciamento de outros tipos de pacotes e softwares instalados nas principais distribuições Linux, tornando o pakmart uma central universal de aplicativos.
+### Future
 
-## Tecnologias
+There are plans to expand support, allowing the management of other types of packages and software installed on major Linux distributions, making pakmart a universal app center.
+
+## Technologies
 
 - 100% Dart/Flutter
-- Suporte inicial para Flatpak
-- Foco em multiplataforma Linux Desktop
+- Initial support for Flatpak
+- Focus on Linux Desktop multiplatform
 
 ---
-Para saber mais sobre Flutter:
+To learn more about Flutter:
 
 - [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
 - [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
 - [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
 
-Documentação oficial: [Flutter Docs](https://docs.flutter.dev/)
+Official documentation: [Flutter Docs](https://docs.flutter.dev/)
