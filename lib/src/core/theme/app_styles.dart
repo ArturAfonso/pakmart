@@ -11,7 +11,14 @@ abstract final class AppTextStyles {
   static TextStyle get titleLarge => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 32,
-        fontWeight: FontWeight.w700, // Bold
+        fontWeight: FontWeight.w700, 
+        fontStyle: FontStyle.normal,
+        height: 1.2,
+      );
+  static TextStyle get titleLargeNormal => const TextStyle(
+        fontFamily: 'AvrileSerif',
+        fontSize: 32,
+        fontWeight: FontWeight.w400, 
         fontStyle: FontStyle.normal,
         height: 1.2,
       );
@@ -19,7 +26,7 @@ abstract final class AppTextStyles {
   static TextStyle get titleLargeItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 32,
-        fontWeight: FontWeight.w700, // Bold
+        fontWeight: FontWeight.w700,
         fontStyle: FontStyle.italic,
         height: 1.2,
       );
@@ -27,7 +34,14 @@ abstract final class AppTextStyles {
   static TextStyle get titleMedium => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 24,
-        fontWeight: FontWeight.w600, // SemiBold
+        fontWeight: FontWeight.w600, 
+        fontStyle: FontStyle.normal,
+        height: 1.2,
+      );
+  static TextStyle get titleMediumNormal => const TextStyle(
+        fontFamily: 'AvrileSerif',
+        fontSize: 24,
+        fontWeight: FontWeight.w400, 
         fontStyle: FontStyle.normal,
         height: 1.2,
       );
@@ -35,7 +49,7 @@ abstract final class AppTextStyles {
   static TextStyle get titleMediumItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 24,
-        fontWeight: FontWeight.w600, // SemiBold
+        fontWeight: FontWeight.w600, 
         fontStyle: FontStyle.italic,
         height: 1.2,
       );
@@ -43,21 +57,21 @@ abstract final class AppTextStyles {
   static TextStyle get titleSmall => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 18,
-        fontWeight: FontWeight.w500, // Medium
+        fontWeight: FontWeight.w500, 
         fontStyle: FontStyle.normal,
       );
 
   static TextStyle get titleSmallItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 18,
-        fontWeight: FontWeight.w500, // Medium
+        fontWeight: FontWeight.w500, 
         fontStyle: FontStyle.italic,
       );
 
   static TextStyle get bodyLarge => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 18,
-        fontWeight: FontWeight.w400, // Regular
+        fontWeight: FontWeight.w400, 
         fontStyle: FontStyle.normal,
         height: 1.5,
       );
@@ -65,7 +79,7 @@ abstract final class AppTextStyles {
   static TextStyle get bodyLargeItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 18,
-        fontWeight: FontWeight.w400, // Regular
+        fontWeight: FontWeight.w400, 
         fontStyle: FontStyle.italic,
         height: 1.5,
       );
@@ -73,7 +87,7 @@ abstract final class AppTextStyles {
   static TextStyle get bodyMedium => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 16,
-        fontWeight: FontWeight.w300, // Light
+        fontWeight: FontWeight.w300, 
         fontStyle: FontStyle.normal,
         height: 1.5,
       );
@@ -81,7 +95,7 @@ abstract final class AppTextStyles {
   static TextStyle get bodyMediumItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 16,
-        fontWeight: FontWeight.w300, // Light
+        fontWeight: FontWeight.w300,  
         fontStyle: FontStyle.italic,
         height: 1.5,
       );
@@ -89,7 +103,7 @@ abstract final class AppTextStyles {
   static TextStyle get bodySmall => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 14,
-        fontWeight: FontWeight.w100, // Thin
+        fontWeight: FontWeight.w100, 
         fontStyle: FontStyle.normal,
         height: 1.4,
       );
@@ -97,7 +111,7 @@ abstract final class AppTextStyles {
   static TextStyle get bodySmallItalic => const TextStyle(
         fontFamily: 'AvrileSerif',
         fontSize: 14,
-        fontWeight: FontWeight.w100, // Thin
+        fontWeight: FontWeight.w100, 
         fontStyle: FontStyle.italic,
         height: 1.4,
       );

@@ -1,8 +1,8 @@
 
 
-# pakmart
+# Pakmart
 
-*[Leia em português](README-pt.md)*
+*[Leia em português](README.pt.md)*
 
 **pakmart** is an app store developed in Dart/Flutter for Linux, initially focused on installing and managing Flatpak apps.
 

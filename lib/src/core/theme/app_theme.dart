@@ -3,12 +3,26 @@ import 'app_colors.dart';
 
 abstract final class AppTheme {
   static ThemeData get light => ThemeData(
+        appBarTheme: const AppBarTheme(
+          toolbarHeight: 82,
+          backgroundColor: AppColors.background,
+          elevation: 3,
+          centerTitle: false,
+          surfaceTintColor: Colors.transparent,
+          shape: Border(
+    bottom: BorderSide(
+      color: AppColors.border, 
+      width: 1,
+    ),),),
+        
+
+        
         useMaterial3: true,
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.background,
         dividerColor: AppColors.border,
         
-        // Configuração Global de Cores
+       
         colorScheme:  ColorScheme.light(
           primary: AppColors.accent,
           onPrimary: Colors.white,
@@ -19,19 +33,18 @@ abstract final class AppTheme {
           outline: AppColors.border,
         ),
 
-        // Estilização de Inputs (Barra de busca)
+        
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.input,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
           ),
           hintStyle: const TextStyle(color: AppColors.textMuted),
         ),
 
-        // Estilização de Cards (Blocos)
         cardTheme: CardThemeData(
           color: AppColors.surface,
           elevation: 0,
@@ -43,6 +56,18 @@ abstract final class AppTheme {
       );
 
   static ThemeData get dark => ThemeData(
+        appBarTheme: const AppBarTheme(
+          toolbarHeight: 82,
+          backgroundColor: AppColors.darkBackground,
+          elevation: 1,
+          centerTitle: false,
+          surfaceTintColor: Colors.transparent,
+           shape: Border(
+    bottom: BorderSide(
+      color: AppColors.darkBorder, 
+      width: 1,
+    ),),
+        ),
         useMaterial3: true,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBackground,
@@ -63,7 +88,7 @@ abstract final class AppTheme {
           fillColor: AppColors.darkInput,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
           ),
           hintStyle: const TextStyle(color: AppColors.darkTextMuted),
