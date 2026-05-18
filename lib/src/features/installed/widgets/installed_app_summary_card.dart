@@ -46,7 +46,7 @@ class InstalledAppSummaryCard extends StatelessWidget {
 							borderRadius: BorderRadius.circular(24),
 						),
 						child: Icon(
-							app.icon,
+							Icons.abc,
 							size: 48,
 							color: isDark ? AppColors.darkBackground : AppColors.textPrimary,
 						),

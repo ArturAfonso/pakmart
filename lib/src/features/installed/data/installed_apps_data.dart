@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
 
 enum PermissionSeverity { normal, warning, danger }
 
@@ -56,7 +57,7 @@ class InstalledAppData {
     required this.packageName,
     required this.version,
     required this.size,
-    required this.icon,
+     this.icon,
     required this.iconBackground,
     required this.tagline,
     required this.license,
@@ -71,7 +72,7 @@ class InstalledAppData {
   final String packageName;
   final String version;
   final String size;
-  final IconData icon;
+  final FlathubIcon? icon;
   final Color iconBackground;
   final String tagline;
   final String license;
@@ -79,9 +80,9 @@ class InstalledAppData {
   final String sandboxLabel;
   final List<InstalledPermissionSectionData> permissionSections;
 }
-
+/* 
 abstract final class InstalledAppsData {
-  static const apps = [
+  static  apps = [
     InstalledAppData(
       id: 'flowstudio',
       name: 'FlowStudio',
@@ -89,7 +90,8 @@ abstract final class InstalledAppsData {
       packageName: 'art.atelier.FlowStudio',
       version: '3.2.1',
       size: '84.2 MB',
-      icon: Icons.brush_rounded,
+      icon: FlathubIcon(
+        url: 'https://flathub.org/icons/flowstudio.png', type: '', width: null, height: null),
       iconBackground: Color(0xFFFFE3DA),
       tagline: 'Ambiente de escrita minimalista, focado e silencioso.',
       license: 'GPL-3.0',
@@ -420,4 +422,4 @@ abstract final class InstalledAppsData {
 
     return null;
   }
-}
+} */

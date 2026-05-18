@@ -42,13 +42,23 @@ class InstalledAppTile extends StatelessWidget {
 								crossAxisAlignment: CrossAxisAlignment.center,
 								children: [
 									Container(
-										width: 72,
-										height: 72,
+										width: app.icon?.width.toDouble() ?? 48,
+										height: app.icon?.height.toDouble() ?? 48,
 										decoration: BoxDecoration(
-											color: app.iconBackground,
+											color: Colors.transparent,
 											borderRadius: BorderRadius.circular(20),
 										),
-										child: Icon(app.icon, size: 36, color: iconColor),
+										child: app.icon != null && app.icon!.url.isNotEmpty ? Image.network( 
+                      scale: app.icon?.scale?.toDouble() ?? 2.0,
+                      app.icon!.url,
+                      width: app.icon?.width.toDouble() ?? 48,
+                      height: app.icon?.height.toDouble() ?? 48,
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.nearby_error,
+                        size: 48,
+                        color: iconColor,
+                      ),
+                    ) : Image.asset('assets/flathub.png', scale: 2.0, width: 48, height: 48),
 									),
 									const SizedBox(width: 16),
 									Expanded(
