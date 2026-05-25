@@ -42,9 +42,18 @@ class InstalledScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Aplicativos instalados',
-                  style: AppTextStyles.titleLargeNormal.copyWith(color: titleColor, fontSize: 54, height: 1.05),
+                Row(
+                  children: [
+                    Text(
+                      'Aplicativos instalados',
+                      style: AppTextStyles.titleLargeNormal.copyWith(color: titleColor, fontSize: 54, height: 1.05),
+                    ),
+                    Spacer(),
+                    IconButton(onPressed: () {
+                      context.read<InstalledAppsBloc>().refresh();
+                    }, 
+                    icon: Icon(Icons.refresh, color: secondaryColor)),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -55,39 +64,41 @@ class InstalledScreen extends StatelessWidget {
                 BlocBuilder<InstalledAppsBloc, InstalledAppsState>(
                   builder: (context, state) {
                     if (state is InstalledAppsLoading) {
-                  return Align(
-                    alignment: Alignment.center,
-                    child: CircularProgressIndicator());
-                }if (state is InstalledAppsLoaded) {
-          final apps = state.data;
-          return Container(
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: borderColor),
-                  ),
-                  child: apps.isNotEmpty ? Column(
-                    children: [
-                      for (var index = 0; index < apps.length; index++) ...[
-                        InstalledAppTile(app: apps[index]),
-                        if (index != apps.length - 1) Divider(height: 1, color: borderColor),
-                      ],
-                    ],
-                  ) : Container(),
-                );
-        } else if (state is InstalledAppsError) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(state.message),
-              ElevatedButton(
-                onPressed: () => context.read<InstalledAppsBloc>().refresh(),
-                child: Text('Tentar novamente'),
-              ),
-            ],
-          );
-        }  return SizedBox.shrink();
+                      return Align(alignment: Alignment.center, child: CircularProgressIndicator());
+                    }
+                    if (state is InstalledAppsLoaded) {
+                      final apps = state.data;
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: surfaceColor,
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: borderColor),
+                        ),
+                        child: apps.isNotEmpty
+                            ? Column(
+                                children: [
+                                  for (var index = 0; index < apps.length; index++) ...[
+                                    InstalledAppTile(app: apps[index]),
+                                    if (index != apps.length - 1) Divider(height: 1, color: borderColor),
+                                  ],
+                                ],
+                              )
+                            : Container(),
+                      );
+                    } else if (state is InstalledAppsError) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(state.message),
+                          ElevatedButton(
+                            onPressed: () => context.read<InstalledAppsBloc>().refresh(),
+                            child: Text('Tentar novamente'),
+                          ),
+                        ],
+                      );
+                    }
+                    return SizedBox.shrink();
                   },
                 ),
                 /* Container(

@@ -8,7 +8,13 @@ import 'package:pakmart/src/core/theme/theme_repository.dart';
 import 'package:pakmart/src/core/theme/themelocal_datasource.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
 import 'package:pakmart/src/features/installed/data/installed_app_api.dart';
-import 'package:pakmart/src/features/installed/repositories/installed_apps_repository.dart';
+import 'package:pakmart/src/features/installed/repositories/dynamic_permissions_reader.dart';
+import 'package:pakmart/src/features/installed/repositories/installation_discovery_service.dart';
+import 'package:pakmart/src/features/installed/repositories/installed_app_assembler.dart';
+import 'package:pakmart/src/features/installed/repositories/installed_app_inventory_service.dart';
+import 'package:pakmart/src/features/installed/repositories/installed_apps_repository_new.dart';
+import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
+import 'package:pakmart/src/features/installed/repositories/static_permissions_reader.dart';
 import 'package:pakmart/src/routes/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +33,23 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<AppLanguageRepository>(() => AppLanguageRepositoryImpl(sl()));
   sl.registerFactory<AppLanguageCubit>(() => AppLanguageCubit(sl()));
 
-  sl.registerLazySingleton<InstalledAppApi>(() => InstalledAppApi());
-  sl.registerLazySingleton<InstalledAppsRepository>(() => InstalledAppsRepositoryImpl(sl()));
+  sl.registerLazySingleton<InstallationDiscoveryService>(() => const InstallationDiscoveryService());
+  sl.registerLazySingleton<InstalledAppInventoryService>(() => InstalledAppInventoryService(sl()));
+  sl.registerLazySingleton<LocalMetadataReader>(() => const LocalMetadataReader());
+  sl.registerLazySingleton<StaticPermissionsReader>(() => const StaticPermissionsReader());
+  sl.registerLazySingleton<DynamicPermissionsReader>(() => const DynamicPermissionsReader());
+  sl.registerLazySingleton<InstalledAppAssembler>(() => const InstalledAppAssembler());
+  sl.registerLazySingleton<InstalledAppsRepositoryNew>(
+    () => InstalledAppsRepositoryNew(
+      discoveryService: sl(),
+      inventoryService: sl(),
+      metadataReader: sl(),
+      staticPermissionsReader: sl(),
+      dynamicPermissionsReader: sl(),
+      assembler: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<InstalledAppApi>(() => InstalledAppApi(sl()));
   sl.registerFactory<InstalledAppsBloc>(() => InstalledAppsBloc(sl()));
 }

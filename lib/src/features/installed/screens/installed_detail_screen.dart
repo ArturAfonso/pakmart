@@ -4,15 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
+import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
+import 'package:pakmart/src/features/installed/bloc/installed_apps_state.dart';
 import 'package:pakmart/src/features/installed/data/installed_apps_data.dart';
 import 'package:pakmart/src/features/installed/widgets/installed_app_summary_card.dart';
 import 'package:pakmart/src/features/installed/widgets/permissions_card.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class InstalledDetailScreen extends StatefulWidget {
-  const InstalledDetailScreen({super.key, required this.appId});
+  const InstalledDetailScreen({super.key, required this.appId, this.actualApp});
 
   final String appId;
+  final InstalledAppData? actualApp;
 
   @override
   State<InstalledDetailScreen> createState() => _InstalledDetailScreenState();
@@ -25,7 +28,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _app = null; //InstalledAppsData.byId(widget.appId);
+    _app = widget.actualApp ?? _findAppInBlocState(widget.appId);
     _toggleValues = _buildToggleValues(_app);
   }
 
@@ -33,14 +36,21 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
   Widget build(BuildContext context) {
     final app = _app;
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
     if (app == null) {
       return Center(
-        child: Text('Aplicativo não encontrado.', style: AppTextStyles.bodyLarge.copyWith(color: titleColor)),
+        child: Text(
+          'Aplicativo não encontrado.',
+          style: AppTextStyles.bodyLarge.copyWith(color: titleColor),
+        ),
       );
     }
 
@@ -63,12 +73,17 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
                       context.goNamed(AppRoutes.INSTALLED);
                     }
                   },
-                  icon: Icon(Icons.arrow_back_rounded, color: secondaryColor, size: 18),
+                  icon: Icon(
+                    Icons.arrow_back_rounded,
+                    color: secondaryColor,
+                    size: 18,
+                  ),
                   label: Text(
                     'Instalados',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: secondaryColor, fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: secondaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -87,6 +102,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
                             borderColor: borderColor,
                             surfaceColor: surfaceColor,
                             isDark: isDark,
+                            onUninstalled: _handleAppUninstalled,
                           ),
                           const SizedBox(height: 24),
                           PermissionsCard(
@@ -119,6 +135,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
                             borderColor: borderColor,
                             surfaceColor: surfaceColor,
                             isDark: isDark,
+                            onUninstalled: _handleAppUninstalled,
                           ),
                         ),
                         const SizedBox(width: 32),
@@ -166,5 +183,39 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
     }
 
     return values;
+  }
+
+  InstalledAppData? _findAppInBlocState(String appId) {
+    final state = context.read<InstalledAppsBloc>().state;
+    if (state is! InstalledAppsLoaded) {
+      return null;
+    }
+
+    for (final app in state.data) {
+      if (app.id == appId) {
+        return app;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> _handleAppUninstalled(InstalledAppData app) async {
+    await context.read<InstalledAppsBloc>().refresh();
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${app.name} foi desinstalado com sucesso.')),
+    );
+
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+
+    context.goNamed(AppRoutes.INSTALLED);
   }
 }

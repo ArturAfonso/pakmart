@@ -41,6 +41,21 @@ class AppLanguageState {
 }
 
 class AppLanguageCubit extends Cubit<AppLanguageState> {
+    /// Retorna o locale formatado para uso na API do Flathub.
+    /// Exemplo: pt_BR -> ptbr, en_US -> en, es_ES -> es
+    String get apiLocaleCode {
+      final code = state.localeCode.toLowerCase();
+      if (code.startsWith('pt')) {
+        // Aceita pt-br ou ptbr
+        return 'ptbr';
+      } else if (code.startsWith('en')) {
+        return 'en';
+      } else if (code.startsWith('es')) {
+        return 'es';
+      }
+      // fallback para en
+      return 'en';
+    }
   AppLanguageCubit(this._repository)
     : super(
         const AppLanguageState(

@@ -15,16 +15,79 @@ class InstalledAppsRepositoryImpl implements InstalledAppsRepository {
 
   final InstalledAppApi _api;
   final HttpClient _httpClient;
+  
+  @override
+  Future<List<InstalledAppData>> getInstalledApps() {
+    // TODO: implement getInstalledApps
+    throw UnimplementedError();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
+abstract class InstalledAppsRepository {
+  Future<List<InstalledAppData>> getInstalledApps();
+}
+
+class InstalledAppsRepositoryImpl implements InstalledAppsRepository {
+  InstalledAppsRepositoryImpl(this._api, {HttpClient? httpClient}) : _httpClient = httpClient ?? HttpClient();
+
+  final InstalledAppApi _api;
+  final HttpClient _httpClient;
 
   @override
-  Future<List<InstalledAppData>> getInstalledApps() async {
+  /* Future<List<InstalledAppData>> getInstalledApps() async {
     final localApps = await _listInstalledFlatpaks();
 
     final merged = await Future.wait(localApps.map(_mergeLocalWithFlathub));
 
     merged.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
     return merged;
-  }
+  } */
 
   Future<List<FlatpakApp>> _listInstalledFlatpaks() async {
     final result = await Process.run('flatpak', [
@@ -48,7 +111,7 @@ class InstalledAppsRepositoryImpl implements InstalledAppsRepository {
     return apps;
   }
 
-  Future<InstalledAppData> _mergeLocalWithFlathub(FlatpakApp local) async {
+  /* Future<InstalledAppData> _mergeLocalWithFlathub(FlatpakApp local) async {
     final flathubFuture = _api.fetchAppInfo(local.application);
     final sizeFuture = _readInstalledSize(local.application);
     final permsFuture = _readPermissionSections(local.application);
@@ -75,7 +138,7 @@ class InstalledAppsRepositoryImpl implements InstalledAppsRepository {
       sandboxLabel: local.installation.toLowerCase() == 'user' ? 'SANDBOXED USER' : 'SANDBOXED SYSTEM',
       permissionSections: permissionSections,
     );
-  }
+  } */
 
   Future<String?> _readInstalledSize(String appId) async {
     final result = await Process.run('flatpak', ['info', '--show-size', appId]);
@@ -178,3 +241,4 @@ class InstalledAppsRepositoryImpl implements InstalledAppsRepository {
     }
   }
 }
+ */
