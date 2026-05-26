@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:pakmart/src/features/installed/repositories/installation_discovery_service.dart';
 
-// Varre cada instalacao valida e descobre os appIds instalados localmente.
+
 
 enum InventoryEntryStatus {
 	ok,

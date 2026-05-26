@@ -2,9 +2,8 @@ import 'dart:io';
 
 import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
 
-// Lê metadata base + override global + override por app para calcular permissoes efetivas.
 
-// Estrutura de uma permissao staticacom seus 3 niveis de origem.
+
 class StaticPermission {
   const StaticPermission({
     required this.key,
@@ -25,10 +24,8 @@ class StaticPermission {
   final List<String> diagnostics;
 }
 
-// Indica qual arquivo foi lido por ultimo para este valor efetivo.
 enum PermissionOrigin { base, globalOverride, appOverride, unset }
 
-// Agrupa todas as permissoes estaticas de um app.
 class StaticAppPermissions {
   const StaticAppPermissions({
     required this.appId,
@@ -46,8 +43,7 @@ class StaticAppPermissions {
 class StaticPermissionsReader {
   const StaticPermissionsReader();
 
-  // Mapeamento entre chaves exibidas na UI e listas reais da secao [Context]
-  // do metadata/override Flatpak.
+  
   static const List<_PermissionSpec> knownPermissions = [
     _PermissionSpec(
       flatKey: 'Context/shared-network',
@@ -169,6 +165,26 @@ class StaticPermissionsReader {
       contextList: 'features',
       token: 'per-app-dev-shm',
     ),
+    _PermissionSpec(
+      flatKey: 'Context/filesystems-host',
+      contextList: 'filesystems',
+      token: 'host',
+    ),
+    _PermissionSpec(
+      flatKey: 'Context/filesystems-host-os',
+      contextList: 'filesystems',
+      token: 'host-os',
+    ),
+    _PermissionSpec(
+      flatKey: 'Context/filesystems-host-etc',
+      contextList: 'filesystems',
+      token: 'host-etc',
+    ),
+    _PermissionSpec(
+      flatKey: 'Context/filesystems-home',
+      contextList: 'filesystems',
+      token: 'home',
+    ),
   ];
 
   Future<List<StaticAppPermissions>> resolveStaticPermissionsForMetadata(
@@ -176,7 +192,6 @@ class StaticPermissionsReader {
   ) async {
     final staticPermissions = <StaticAppPermissions>[];
 
-    // Lê override global uma vez.
     final globalOverrides = await _readGlobalOverrides();
 
     for (final app in metadata) {
@@ -186,6 +201,43 @@ class StaticPermissionsReader {
     }
 
     return staticPermissions;
+  }
+
+  Future<void> setAppOverridePermission({
+    required String appId,
+    required String permissionKey,
+    required bool enabled,
+  }) async {
+    final permission = _permissionForKey(permissionKey);
+    if (permission == null) {
+      throw UnsupportedError('Unsupported static permission: $permissionKey');
+    }
+
+    final userDir = Platform.environment['HOME'] ?? '';
+    if (userDir.isEmpty) {
+      throw StateError('HOME is not defined.');
+    }
+
+    final overridesDir = Directory('$userDir/.local/share/flatpak/overrides');
+    if (!await overridesDir.exists()) {
+      await overridesDir.create(recursive: true);
+    }
+
+    final filePath = '$userDir/.local/share/flatpak/overrides/$appId';
+    final file = File(filePath);
+    final ini = await _readIniFile(filePath);
+
+    final contextSection = ini.putIfAbsent('context', () => <String, String>{});
+    final listKey = permission.contextList == 'features'
+        ? 'allow'
+        : permission.contextList;
+    final currentRaw = contextSection[listKey] ?? '';
+    final currentTokens = _parseRawContextTokenList(currentRaw);
+
+    currentTokens[permission.token] = enabled;
+    contextSection[listKey] = _serializeContextTokenList(currentTokens);
+
+    await file.writeAsString(_serializeIni(ini));
   }
 
   Future<StaticAppPermissions> _resolvePermissionsForApp(
@@ -200,7 +252,6 @@ class StaticPermissionsReader {
       diagnostics.add('missing-active-path');
     }
 
-    // Lê override por app.
     final appOverrides = await _readAppOverrides(app.appId);
 
     for (final permission in knownPermissions) {
@@ -208,7 +259,6 @@ class StaticPermissionsReader {
       final globalOverride = globalOverrides[permission.flatKey];
       final appOverride = appOverrides[permission.flatKey];
 
-      // Calcula valor efetivo: app vence global que vence base.
       final effective = appOverride ?? globalOverride ?? base;
       final origin = _determineOrigin(base, globalOverride, appOverride);
 
@@ -220,7 +270,7 @@ class StaticPermissionsReader {
           appOverride: appOverride,
           effective: effective,
           origin: origin,
-          diagnostics: List.unmodifiable([]),
+          diagnostics: const [],
         ),
       );
     }
@@ -254,7 +304,6 @@ class StaticPermissionsReader {
     return values;
   }
 
-  // Lê override global (unico para todo o sistema).
   Future<Map<String, bool?>> _readGlobalOverrides() async {
     final userDir = Platform.environment['HOME'] ?? '';
     final sources = <String>[
@@ -275,7 +324,6 @@ class StaticPermissionsReader {
     return merged;
   }
 
-  // Lê override especifico de um app.
   Future<Map<String, bool?>> _readAppOverrides(String appId) async {
     final userDir = Platform.environment['HOME'] ?? '';
     final sources = <String>[
@@ -323,6 +371,49 @@ class StaticPermissionsReader {
     }
   }
 
+  Future<Map<String, Map<String, String>>> _readIniFile(String filePath) async {
+    final sections = <String, Map<String, String>>{};
+    String? currentSection;
+
+    final file = File(filePath);
+    if (!await file.exists()) {
+      return sections;
+    }
+
+    final lines = await file.readAsLines();
+    for (final rawLine in lines) {
+      final line = rawLine.trim();
+
+      if (line.isEmpty || line.startsWith(';') || line.startsWith('#')) {
+        continue;
+      }
+
+      if (line.startsWith('[') && line.endsWith(']')) {
+        currentSection = line
+            .substring(1, line.length - 1)
+            .trim()
+            .toLowerCase();
+        sections.putIfAbsent(currentSection, () => <String, String>{});
+        continue;
+      }
+
+      if (!line.contains('=') || currentSection == null) {
+        continue;
+      }
+
+      final separatorIndex = line.indexOf('=');
+      final key = line.substring(0, separatorIndex).trim().toLowerCase();
+      final value = line.substring(separatorIndex + 1).trim();
+      if (key.isEmpty) {
+        continue;
+      }
+
+      sections[currentSection]![key] = value;
+    }
+
+    return sections;
+  }
+
   Map<String, Map<String, bool?>> _parseContextValues(List<String> lines) {
     final contextValues = <String, Map<String, bool?>>{};
     String? currentSection;
@@ -355,7 +446,8 @@ class StaticPermissionsReader {
       if (normalizedList != 'shared' &&
           normalizedList != 'sockets' &&
           normalizedList != 'devices' &&
-          normalizedList != 'features') {
+          normalizedList != 'features' &&
+          normalizedList != 'filesystems') {
         continue;
       }
 
@@ -394,6 +486,107 @@ class StaticPermissionsReader {
     return contextValues;
   }
 
+  Map<String, bool> _parseRawContextTokenList(String rawValue) {
+    final tokens = <String, bool>{};
+
+    for (final chunk in rawValue.split(';')) {
+      for (final piece in chunk.split(',')) {
+        var token = piece.trim().toLowerCase();
+        if (token.isEmpty) {
+          continue;
+        }
+
+        var enabled = true;
+        if (token.startsWith('!')) {
+          enabled = false;
+          token = token.substring(1).trim();
+        }
+
+        final suffixIndex = token.indexOf(':');
+        if (suffixIndex > 0) {
+          token = token.substring(0, suffixIndex);
+        }
+
+        if (token.isEmpty) {
+          continue;
+        }
+
+        tokens[token] = enabled;
+      }
+    }
+
+    return tokens;
+  }
+
+  String _serializeContextTokenList(Map<String, bool> tokens) {
+    final ordered = tokens.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (ordered.isEmpty) {
+      return '';
+    }
+
+    final parts = <String>[];
+    for (final entry in ordered) {
+      parts.add(entry.value ? entry.key : '!${entry.key}');
+    }
+
+    return '${parts.join(';')};';
+  }
+
+  String _serializeIni(Map<String, Map<String, String>> ini) {
+    final sectionOrder = <String>['context'];
+    for (final section in ini.keys) {
+      if (!sectionOrder.contains(section)) {
+        sectionOrder.add(section);
+      }
+    }
+
+    final buffer = StringBuffer();
+    var wroteFirstSection = false;
+
+    for (final section in sectionOrder) {
+      final values = ini[section];
+      if (values == null || values.isEmpty) {
+        continue;
+      }
+
+      if (wroteFirstSection) {
+        buffer.writeln();
+      }
+      wroteFirstSection = true;
+
+      buffer.writeln('[${_displaySectionName(section)}]');
+      final keys = values.keys.toList()..sort();
+      for (final key in keys) {
+        buffer.writeln('$key=${values[key]}');
+      }
+    }
+
+    if (buffer.isEmpty) {
+      buffer.writeln('[Context]');
+    }
+
+    return buffer.toString();
+  }
+
+  String _displaySectionName(String section) {
+    if (section == 'context') {
+      return 'Context';
+    }
+
+    if (section.isEmpty) {
+      return section;
+    }
+
+    final words = section.split(' ');
+    final normalized = words
+        .where((word) => word.isNotEmpty)
+        .map((word) => '${word[0].toUpperCase()}${word.substring(1)}')
+        .join(' ');
+    return normalized.isEmpty ? section : normalized;
+  }
+
   Map<String, bool?> _contextToKnownPermissions(
     Map<String, Map<String, bool?>> contextValues, {
     required bool missingAsFalse,
@@ -412,7 +605,6 @@ class StaticPermissionsReader {
     return resolved;
   }
 
-  // Determina de qual fonte veio o valor efetivo.
   PermissionOrigin _determineOrigin(
     bool? base,
     bool? globalOverride,
@@ -428,6 +620,15 @@ class StaticPermissionsReader {
       return PermissionOrigin.base;
     }
     return PermissionOrigin.unset;
+  }
+
+  _PermissionSpec? _permissionForKey(String key) {
+    for (final permission in knownPermissions) {
+      if (permission.flatKey == key) {
+        return permission;
+      }
+    }
+    return null;
   }
 }
 

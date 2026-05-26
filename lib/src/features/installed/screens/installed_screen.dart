@@ -101,21 +101,7 @@ class InstalledScreen extends StatelessWidget {
                     return SizedBox.shrink();
                   },
                 ),
-                /* Container(
-                  decoration: BoxDecoration(
-                    color: surfaceColor,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: borderColor),
-                  ),
-                  child: apps.isNotEmpty ? Column(
-                    children: [
-                      for (var index = 0; index < apps.length; index++) ...[
-                        InstalledAppTile(app: apps[index]),
-                        if (index != apps.length - 1) Divider(height: 1, color: borderColor),
-                      ],
-                    ],
-                  ) : Container(),
-                ), */
+               
               ],
             ),
           ),

@@ -22,7 +22,7 @@ class InstalledDetailScreen extends StatefulWidget {
 }
 
 class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
-  late final InstalledAppData? _app;
+  InstalledAppData? _app;
   late final Map<String, bool> _toggleValues;
 
   @override
@@ -54,112 +54,112 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
       );
     }
 
-    return SafeArea(
-      top: false,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 56),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1280),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.goNamed(AppRoutes.INSTALLED);
-                    }
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_rounded,
-                    color: secondaryColor,
-                    size: 18,
-                  ),
-                  label: Text(
-                    'Instalados',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    return BlocListener<InstalledAppsBloc, InstalledAppsState>(
+      listenWhen: (previous, current) => current is InstalledAppsLoaded,
+      listener: (context, state) {
+        if (state is InstalledAppsLoaded) {
+          _syncAppFromBlocState(state);
+        }
+      },
+      child: SafeArea(
+        top: false,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 56),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1280),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.goNamed(AppRoutes.INSTALLED);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.arrow_back_rounded,
                       color: secondaryColor,
-                      fontWeight: FontWeight.w600,
+                      size: 18,
+                    ),
+                    label: Text(
+                      'Instalados',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: secondaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final compact = constraints.maxWidth < 1080;
+                  const SizedBox(height: 18),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compact = constraints.maxWidth < 1080;
 
-                    if (compact) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                      if (compact) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            InstalledAppSummaryCard(
+                              app: app,
+                              titleColor: titleColor,
+                              secondaryColor: secondaryColor,
+                              borderColor: borderColor,
+                              surfaceColor: surfaceColor,
+                              isDark: isDark,
+                              onUninstalled: _handleAppUninstalled,
+                            ),
+                            const SizedBox(height: 24),
+                            PermissionsCard(
+                              app: app,
+                              titleColor: titleColor,
+                              secondaryColor: secondaryColor,
+                              borderColor: borderColor,
+                              surfaceColor: surfaceColor,
+                              toggleValues: _toggleValues,
+                              onToggleChanged: _onPermissionToggleChanged,
+                              isDark: isDark,
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          InstalledAppSummaryCard(
-                            app: app,
-                            titleColor: titleColor,
-                            secondaryColor: secondaryColor,
-                            borderColor: borderColor,
-                            surfaceColor: surfaceColor,
-                            isDark: isDark,
-                            onUninstalled: _handleAppUninstalled,
+                          SizedBox(
+                            width: 300,
+                            child: InstalledAppSummaryCard(
+                              app: app,
+                              titleColor: titleColor,
+                              secondaryColor: secondaryColor,
+                              borderColor: borderColor,
+                              surfaceColor: surfaceColor,
+                              isDark: isDark,
+                              onUninstalled: _handleAppUninstalled,
+                            ),
                           ),
-                          const SizedBox(height: 24),
-                          PermissionsCard(
-                            app: app,
-                            titleColor: titleColor,
-                            secondaryColor: secondaryColor,
-                            borderColor: borderColor,
-                            surfaceColor: surfaceColor,
-                            toggleValues: _toggleValues,
-                            onToggleChanged: (key, value) {
-                              setState(() {
-                                _toggleValues[key] = value;
-                              });
-                            },
-                            isDark: isDark,
+                          const SizedBox(width: 32),
+                          Expanded(
+                            child: PermissionsCard(
+                              app: app,
+                              titleColor: titleColor,
+                              secondaryColor: secondaryColor,
+                              borderColor: borderColor,
+                              surfaceColor: surfaceColor,
+                              toggleValues: _toggleValues,
+                              onToggleChanged: _onPermissionToggleChanged,
+                              isDark: isDark,
+                            ),
                           ),
                         ],
                       );
-                    }
-
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 300,
-                          child: InstalledAppSummaryCard(
-                            app: app,
-                            titleColor: titleColor,
-                            secondaryColor: secondaryColor,
-                            borderColor: borderColor,
-                            surfaceColor: surfaceColor,
-                            isDark: isDark,
-                            onUninstalled: _handleAppUninstalled,
-                          ),
-                        ),
-                        const SizedBox(width: 32),
-                        Expanded(
-                          child: PermissionsCard(
-                            app: app,
-                            titleColor: titleColor,
-                            secondaryColor: secondaryColor,
-                            borderColor: borderColor,
-                            surfaceColor: surfaceColor,
-                            toggleValues: _toggleValues,
-                            onToggleChanged: (key, value) {
-                              setState(() {
-                                _toggleValues[key] = value;
-                              });
-                            },
-                            isDark: isDark,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -198,6 +198,89 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
     }
 
     return null;
+  }
+
+  void _syncAppFromBlocState(InstalledAppsLoaded state) {
+    InstalledAppData? appFromState;
+    for (final app in state.data) {
+      if (app.id == widget.appId) {
+        appFromState = app;
+        break;
+      }
+    }
+
+    if (appFromState == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _app = appFromState;
+      _toggleValues
+        ..clear()
+        ..addAll(_buildToggleValues(appFromState));
+    });
+  }
+
+  void _onPermissionToggleChanged(String permissionKey, bool value) {
+    final isStaticPermission = permissionKey.startsWith('Context/');
+
+    final previous = _toggleValues[permissionKey] ?? false;
+    setState(() {
+      _toggleValues[permissionKey] = value;
+    });
+
+    _persistPermissionToggle(
+      permissionKey: permissionKey,
+      value: value,
+      previousValue: previous,
+      isStaticPermission: isStaticPermission,
+    );
+  }
+
+  Future<void> _persistPermissionToggle({
+    required String permissionKey,
+    required bool value,
+    required bool previousValue,
+    required bool isStaticPermission,
+  }) async {
+    final app = _app;
+    if (app == null) {
+      return;
+    }
+
+    try {
+      if (isStaticPermission) {
+        await context.read<InstalledAppsBloc>().setStaticPermissionOverride(
+          appId: app.packageName,
+          permissionKey: permissionKey,
+          enabled: value,
+        );
+      } else {
+        await context.read<InstalledAppsBloc>().setDynamicPermissionOverride(
+          appId: app.packageName,
+          permissionKey: permissionKey,
+          enabled: value,
+        );
+      }
+
+      await context.read<InstalledAppsBloc>().refresh();
+
+      if (!mounted) {
+        return;
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _toggleValues[permissionKey] = previousValue;
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Falha ao salvar permissao: $e')));
+    }
   }
 
   Future<void> _handleAppUninstalled(InstalledAppData app) async {

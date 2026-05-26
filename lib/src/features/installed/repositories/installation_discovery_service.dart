@@ -1,6 +1,6 @@
 import 'dart:io';
 
-// Resolve todas as instalacoes Flatpak existentes na maquina.
+
 
 enum InstallationKind { user, system, custom }
 

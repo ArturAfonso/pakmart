@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:pakmart/src/features/installed/repositories/installation_discovery_service.dart';
 import 'package:pakmart/src/features/installed/repositories/installed_app_inventory_service.dart';
 
-// Puxa nome, descricao, icone, desktop file, branch, versao, licenca e afins do bundle local.
+
 
 class LocalAppMetadata {
   const LocalAppMetadata({

@@ -1,17 +1,12 @@
 import 'package:dbus/dbus.dart';
 import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
 
-// Lê estados de portal no DBus PermissionStore para calculo de permissoes dinamicas.
 
-// Estados possiveis de uma permissao de portal.
-enum PortalPermissionState {
-  allowed,
-  disallowed,
-  unset,
-  unsupported,
-}
 
-// Uma permissao dinamica de portal para um app.
+
+enum PortalPermissionState { allowed, disallowed, unset, unsupported }
+
+
 class DynamicPermission {
   const DynamicPermission({
     required this.key,
@@ -20,13 +15,13 @@ class DynamicPermission {
     required this.diagnostics,
   });
 
-  final String key; // ex: "background", "notifications", "microphone"
-  final String portalName; // ex: "org.freedesktop.portal.Background"
+  final String key; 
+  final String portalName; 
   final PortalPermissionState state;
   final List<String> diagnostics;
 }
 
-// Agrupa todas as permissoes dinamicas de um app.
+
 class DynamicAppPermissions {
   const DynamicAppPermissions({
     required this.appId,
@@ -45,10 +40,12 @@ class DynamicPermissionsReader {
   const DynamicPermissionsReader();
 
   static const String _service = 'org.freedesktop.impl.portal.PermissionStore';
-  static const String _interface = 'org.freedesktop.impl.portal.PermissionStore';
-  static const String _objectPath = '/org/freedesktop/impl/portal/PermissionStore';
+  static const String _interface =
+      'org.freedesktop.impl.portal.PermissionStore';
+  static const String _objectPath =
+      '/org/freedesktop/impl/portal/PermissionStore';
 
-  // Mapeamento alinhado ao Flatseal/PermissionStore.
+  
   static const List<_PortalSpec> _knownPortals = [
     _PortalSpec(
       key: 'background',
@@ -112,7 +109,9 @@ class DynamicPermissionsReader {
     );
 
     try {
-      final permissionStoreAvailable = await _checkPermissionStoreAvailable(store);
+      final permissionStoreAvailable = await _checkPermissionStoreAvailable(
+        store,
+      );
 
       for (final app in metadata) {
         dynamicPermissions.add(
@@ -130,14 +129,91 @@ class DynamicPermissionsReader {
     }
   }
 
-  // Verifica se PermissionStore esta acessivel no DBus.
+  Future<void> setDynamicPermission({
+    required String appId,
+    required String permissionKey,
+    required bool enabled,
+  }) async {
+    final portal = _portalSpecForKey(permissionKey);
+    if (portal == null) {
+      throw UnsupportedError(
+        'Permissao dinamica nao suportada: $permissionKey',
+      );
+    }
+
+    final client = DBusClient.session();
+    final store = DBusRemoteObject(
+      client,
+      name: _service,
+      path: DBusObjectPath(_objectPath),
+    );
+
+    try {
+      final permissionStoreAvailable = await _checkPermissionStoreAvailable(
+        store,
+      );
+      if (!permissionStoreAvailable) {
+        throw StateError('PermissionStore indisponivel na sessao DBus.');
+      }
+
+      final token = enabled
+          ? _preferredToken(portal.allowedTokens, fallback: 'yes')
+          : _preferredToken(portal.disallowedTokens, fallback: 'no');
+
+      await store.callMethod(_interface, 'SetPermission', [
+        DBusString(portal.table),
+        const DBusBoolean(true),
+        DBusString(portal.id),
+        DBusString(appId),
+        DBusArray.string([token]),
+      ]);
+    } finally {
+      client.close();
+    }
+  }
+
+  Future<void> unsetDynamicPermission({
+    required String appId,
+    required String permissionKey,
+  }) async {
+    final portal = _portalSpecForKey(permissionKey);
+    if (portal == null) {
+      throw UnsupportedError(
+        'Permissao dinamica nao suportada: $permissionKey',
+      );
+    }
+
+    final client = DBusClient.session();
+    final store = DBusRemoteObject(
+      client,
+      name: _service,
+      path: DBusObjectPath(_objectPath),
+    );
+
+    try {
+      final permissionStoreAvailable = await _checkPermissionStoreAvailable(
+        store,
+      );
+      if (!permissionStoreAvailable) {
+        throw StateError('PermissionStore indisponivel na sessao DBus.');
+      }
+
+      await store.callMethod(_interface, 'DeletePermission', [
+        DBusString(portal.table),
+        DBusString(portal.id),
+        DBusString(appId),
+      ]);
+    } finally {
+      client.close();
+    }
+  }
+
+  
   Future<bool> _checkPermissionStoreAvailable(DBusRemoteObject store) async {
     try {
-      await store.callMethod(
-        _interface,
-        'List',
-        [const DBusString('background')],
-      );
+      await store.callMethod(_interface, 'List', [
+        const DBusString('background'),
+      ]);
       return true;
     } catch (_) {
       return false;
@@ -154,7 +230,7 @@ class DynamicPermissionsReader {
 
     if (!permissionStoreAvailable) {
       diagnostics.add('permission-store-unavailable');
-      // Retorna todos os portals como unsupported.
+      
       for (final portal in _knownPortals) {
         permissions.add(
           DynamicPermission(
@@ -166,7 +242,7 @@ class DynamicPermissionsReader {
         );
       }
     } else {
-      // Tenta ler cada portal do PermissionStore.
+      
       for (final portal in _knownPortals) {
         final readResult = await _readPortalState(
           store: store,
@@ -199,15 +275,11 @@ class DynamicPermissionsReader {
     required _PortalSpec portal,
   }) async {
     try {
-      final response = await store.callMethod(
-        _interface,
-        'GetPermission',
-        [
-          DBusString(portal.table),
-          DBusString(portal.id),
-          DBusString(appId),
-        ],
-      );
+      final response = await store.callMethod(_interface, 'GetPermission', [
+        DBusString(portal.table),
+        DBusString(portal.id),
+        DBusString(appId),
+      ]);
 
       if (response.returnValues.isEmpty) {
         return const _PortalReadResult(
@@ -261,20 +333,38 @@ class DynamicPermissionsReader {
     } catch (e) {
       final message = e.toString().toLowerCase();
 
-      // Tabela/entrada sem setup ainda => unset.
-      if (message.contains('not found') || message.contains('org.freedesktop.portal.error.notfound')) {
+      
+      if (message.contains('not found') ||
+          message.contains('org.freedesktop.portal.error.notfound')) {
         return const _PortalReadResult(
           state: PortalPermissionState.unset,
           diagnostics: ['portal-entry-not-found'],
         );
       }
 
-      // Falha estrutural no backend => unsupported.
+      
       return _PortalReadResult(
         state: PortalPermissionState.unsupported,
         diagnostics: ['portal-read-error:$e'],
       );
     }
+  }
+
+  _PortalSpec? _portalSpecForKey(String key) {
+    for (final portal in _knownPortals) {
+      if (portal.key == key) {
+        return portal;
+      }
+    }
+    return null;
+  }
+
+  String _preferredToken(List<String> tokens, {required String fallback}) {
+    if (tokens.isEmpty) {
+      return fallback;
+    }
+
+    return tokens.first;
   }
 }
 
@@ -297,10 +387,7 @@ class _PortalSpec {
 }
 
 class _PortalReadResult {
-  const _PortalReadResult({
-    required this.state,
-    required this.diagnostics,
-  });
+  const _PortalReadResult({required this.state, required this.diagnostics});
 
   final PortalPermissionState state;
   final List<String> diagnostics;

@@ -10,8 +10,8 @@ import 'package:pakmart/src/features/installed/repositories/installed_app_invent
 import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
 import 'package:pakmart/src/features/installed/repositories/static_permissions_reader.dart';
 
-// Orquestra toda a pipeline de descoberta e leitura de apps instalados.
-// Não conhece detalhes de parsing; apenas coordena os serviços.
+
+
 
 class InstalledAppsRepositoryNew {
   const InstalledAppsRepositoryNew({
@@ -35,22 +35,22 @@ class InstalledAppsRepositoryNew {
   final DynamicPermissionsReader _dynamicPermissionsReader;
   final assembled.InstalledAppAssembler _assembler;
 
-  // Interface compatível com a UI/BLoC atuais.
+  
   Future<List<legacy.InstalledAppData>> getInstalledApps() async {
     final domainApps = await getAllInstalledApps();
     return domainApps.map(_toLegacyInstalledAppData).toList(growable: false);
   }
 
-  // Ponto de entrada único: retorna lista completa de apps com metadados e permissões.
+  
   Future<List<assembled.InstalledAppData>> getAllInstalledApps() async {
     try {
-      // Passo 1: Descobrir instalações Flatpak válidas.
+      
       final installations = await _discoveryService.discoverInstallations();
       if (installations.isEmpty) {
         return [];
       }
 
-      // Passo 2: Inventariar apps em cada instalação.
+      
       final inventory = await _inventoryService.scanFromInstallations(
         installations,
       );
@@ -58,7 +58,7 @@ class InstalledAppsRepositoryNew {
         return [];
       }
 
-      // Passo 3: Enriquecer com metadados locais.
+      
       final metadata = await _metadataReader.resolveMetadataForInventory(
         inventory,
       );
@@ -66,15 +66,15 @@ class InstalledAppsRepositoryNew {
         return [];
       }
 
-      // Passo 4: Ler permissões estáticas (sandbox base + overrides).
+      
       final staticPermissions = await _staticPermissionsReader
           .resolveStaticPermissionsForMetadata(metadata);
 
-      // Passo 5: Ler permissões dinâmicas (DBus PermissionStore portals).
+      
       final dynamicPermissions = await _dynamicPermissionsReader
           .resolveDynamicPermissionsForMetadata(metadata);
 
-      // Passo 6: Montar modelo final com tudo junto.
+      
       final apps = await _assembler.assembleMultipleApps(
         metadata: metadata,
         staticPermissions: staticPermissions,
@@ -95,13 +95,13 @@ class InstalledAppsRepositoryNew {
 
       return sortedApps;
     } catch (e) {
-      // Log do erro (em produção, seria para um logger real).
+      
       print('Erro ao carregar apps instalados: $e');
       return [];
     }
   }
 
-  // Variante: retorna apenas um app específico (útil para refresh individual).
+  
   Future<assembled.InstalledAppData?> getInstalledApp(String appId) async {
     try {
       final allApps = await getAllInstalledApps();
@@ -117,7 +117,7 @@ class InstalledAppsRepositoryNew {
     }
   }
 
-  // Variante: retorna apps de uma instalação específica.
+  
   Future<List<assembled.InstalledAppData>> getAppsFromInstallation(
     String installationPath,
   ) async {
@@ -130,6 +130,30 @@ class InstalledAppsRepositoryNew {
       print('Erro ao carregar apps da instalação $installationPath: $e');
       return [];
     }
+  }
+
+  Future<void> setStaticPermissionOverride({
+    required String appId,
+    required String permissionKey,
+    required bool enabled,
+  }) async {
+    await _staticPermissionsReader.setAppOverridePermission(
+      appId: appId,
+      permissionKey: permissionKey,
+      enabled: enabled,
+    );
+  }
+
+  Future<void> setDynamicPermissionOverride({
+    required String appId,
+    required String permissionKey,
+    required bool enabled,
+  }) async {
+    await _dynamicPermissionsReader.setDynamicPermission(
+      appId: appId,
+      permissionKey: permissionKey,
+      enabled: enabled,
+    );
   }
 
   legacy.InstalledAppData _toLegacyInstalledAppData(
@@ -196,6 +220,7 @@ class InstalledAppsRepositoryNew {
       ('SOCKETS', 'Context/sockets-'),
       ('DISPOSITIVOS', 'Context/devices-'),
       ('PERMITIR', 'Context/allow-'),
+      ('FILESYSTEM', 'Context/filesystems-'),
     ];
 
     final sections = <legacy.InstalledPermissionSectionData>[];

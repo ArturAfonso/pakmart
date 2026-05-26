@@ -2,15 +2,15 @@ import 'package:pakmart/src/features/installed/repositories/dynamic_permissions_
 import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
 import 'package:pakmart/src/features/installed/repositories/static_permissions_reader.dart';
 
-// Junta tudo num modelo de domínio único para UI.
 
-// Tipo de permissão: estática (sandbox) ou dinâmica (portal).
+
+
 enum PermissionScope { staticSandbox, dynamicPortal }
 
-// Estado de uma permissão dinâmica (portal).
+
 enum PermissionState { allowed, disallowed, unset, unsupported }
 
-// Uma permissão unificada (pode ser estática ou dinâmica).
+
 class AppPermission {
   const AppPermission({
     required this.key,
@@ -29,20 +29,20 @@ class AppPermission {
   final PermissionScope scope;
   final String description;
 
-  // Campos de permissão estática (preenchidos quando scope == staticSandbox)
+  
   final bool? declaredBase;
   final bool? globalOverride;
   final bool? appOverride;
   final bool? effectiveStatic;
 
-  // Campos de permissão dinâmica (preenchidos quando scope == dynamicPortal)
+  
   final PermissionState? portalState;
 
   final bool supported;
   final String? unsupportedReason;
 }
 
-// Modelo completo de um app instalado com metadados e permissões.
+
 class InstalledAppData {
   const InstalledAppData({
     required this.appId,
@@ -76,19 +76,21 @@ class InstalledAppData {
   final List<AppPermission> permissions;
   final List<String> diagnostics;
 
-  // Conveniência: permissões só estáticas
-  List<AppPermission> get staticPermissions =>
-      permissions.where((p) => p.scope == PermissionScope.staticSandbox).toList();
+  
+  List<AppPermission> get staticPermissions => permissions
+      .where((p) => p.scope == PermissionScope.staticSandbox)
+      .toList();
 
-  // Conveniência: permissões só dinâmicas
-  List<AppPermission> get dynamicPermissions =>
-      permissions.where((p) => p.scope == PermissionScope.dynamicPortal).toList();
+  
+  List<AppPermission> get dynamicPermissions => permissions
+      .where((p) => p.scope == PermissionScope.dynamicPortal)
+      .toList();
 }
 
 class InstalledAppAssembler {
   const InstalledAppAssembler();
 
-  // Catalogo de descrições de permissões (em português).
+  
   static const Map<String, String> permissionDescriptions = {
     'Context/shared-network': 'Acesso à rede',
     'Context/shared-ipc': 'Namespace IPC compartilhado',
@@ -114,6 +116,11 @@ class InstalledAppAssembler {
     'Context/allow-bluetooth': 'Bluetooth',
     'Context/allow-canbus': 'Barramento CAN',
     'Context/allow-per-app-dev-shm': 'Memória compartilhada por app',
+    'Context/filesystems-host': 'Todos os arquivos do sistema',
+    'Context/filesystems-host-os':
+        'Bibliotecas, executáveis e dados estáticos do sistema',
+    'Context/filesystems-host-etc': 'Configurações do sistema (/etc)',
+    'Context/filesystems-home': 'Todos os arquivos do usuário',
     'background': 'Executar em background',
     'notifications': 'Enviar notificações',
     'microphone': 'Acessar microfone',
@@ -135,7 +142,7 @@ class InstalledAppAssembler {
 
     final permissions = <AppPermission>[];
 
-    // Adiciona permissões estáticas.
+    
     for (final staticPerm in staticPermissions.permissions) {
       permissions.add(
         AppPermission(
@@ -153,7 +160,7 @@ class InstalledAppAssembler {
       );
     }
 
-    // Adiciona permissões dinâmicas.
+    
     for (final dynamicPerm in dynamicPermissions.permissions) {
       final portalState = _mapPortalState(dynamicPerm.state);
       final supported = dynamicPerm.state != PortalPermissionState.unsupported;
@@ -162,7 +169,8 @@ class InstalledAppAssembler {
         AppPermission(
           key: dynamicPerm.key,
           scope: PermissionScope.dynamicPortal,
-          description: permissionDescriptions[dynamicPerm.key] ?? dynamicPerm.key,
+          description:
+              permissionDescriptions[dynamicPerm.key] ?? dynamicPerm.key,
           declaredBase: null,
           globalOverride: null,
           appOverride: null,
@@ -192,7 +200,7 @@ class InstalledAppAssembler {
     );
   }
 
-  // Converte PortalPermissionState para PermissionState.
+  
   PermissionState _mapPortalState(PortalPermissionState portalState) {
     switch (portalState) {
       case PortalPermissionState.allowed:
@@ -206,7 +214,7 @@ class InstalledAppAssembler {
     }
   }
 
-  // Assembla múltiplos apps de uma vez.
+  
   Future<List<InstalledAppData>> assembleMultipleApps({
     required List<LocalAppMetadata> metadata,
     required List<StaticAppPermissions> staticPermissions,
@@ -214,7 +222,7 @@ class InstalledAppAssembler {
   }) async {
     final result = <InstalledAppData>[];
 
-    // Cria mapas para lookup rápido.
+    
     final staticByAppId = {for (final sp in staticPermissions) sp.appId: sp};
     final dynamicByAppId = {for (final dp in dynamicPermissions) dp.appId: dp};
 
@@ -223,7 +231,7 @@ class InstalledAppAssembler {
       final dynamic_ = dynamicByAppId[app.appId];
 
       if (static == null || dynamic_ == null) {
-        // Skip apps sem dados completos.
+        
         continue;
       }
 
