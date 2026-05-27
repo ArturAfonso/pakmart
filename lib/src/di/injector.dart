@@ -6,6 +6,9 @@ import 'package:pakmart/src/core/locale/app_language_repository.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/core/theme/theme_repository.dart';
 import 'package:pakmart/src/core/theme/themelocal_datasource.dart';
+import 'package:pakmart/src/features/home/bloc/home_featured_bloc.dart';
+import 'package:pakmart/src/features/home/data/home_featured_api.dart';
+import 'package:pakmart/src/features/home/repositories/home_featured_repository.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
 import 'package:pakmart/src/features/installed/data/installed_app_api.dart';
 import 'package:pakmart/src/features/installed/repositories/dynamic_permissions_reader.dart';
@@ -52,4 +55,8 @@ Future<void> configureDependencies() async {
 
   sl.registerLazySingleton<InstalledAppApi>(() => InstalledAppApi(sl()));
   sl.registerFactory<InstalledAppsBloc>(() => InstalledAppsBloc(sl()));
+
+  sl.registerLazySingleton<HomeFeaturedApi>(() => HomeFeaturedApi(sl()));
+  sl.registerLazySingleton<HomeFeaturedRepository>(() => HomeFeaturedRepository(sl()));
+  sl.registerFactory<HomeFeaturedBloc>(() => HomeFeaturedBloc(sl()));
 }
