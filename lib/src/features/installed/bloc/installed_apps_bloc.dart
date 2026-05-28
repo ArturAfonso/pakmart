@@ -13,12 +13,9 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
 
   final InstalledAppsRepositoryNew _repository;
 
-  static const String _permissionStoreService =
-      'org.freedesktop.impl.portal.PermissionStore';
-  static const String _permissionStoreInterface =
-      'org.freedesktop.impl.portal.PermissionStore';
-  static const String _permissionStorePath =
-      '/org/freedesktop/impl/portal/PermissionStore';
+  static const String _permissionStoreService = 'org.freedesktop.impl.portal.PermissionStore';
+  static const String _permissionStoreInterface = 'org.freedesktop.impl.portal.PermissionStore';
+  static const String _permissionStorePath = '/org/freedesktop/impl/portal/PermissionStore';
 
   DBusClient? _permissionStoreClient;
   StreamSubscription<DBusSignal>? _permissionStoreChangedSubscription;
@@ -48,16 +45,51 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
     await loadInstalledApps(forceRefresh: true);
   }
 
+  Future<bool> openApp(String appId) async {
+    try {
+      await Process.start('flatpak', ['run', appId], mode: ProcessStartMode.detached);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> installApp(String appId) async {
+    try {
+      final result = await Process.run('flatpak', ['install', '--noninteractive', '--assumeyes', 'flathub', appId]);
+
+      if (result.exitCode != 0) {
+        return false;
+      }
+
+      await refresh();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> uninstallApp(String appId) async {
+    try {
+      final result = await Process.run('flatpak', ['uninstall', '--noninteractive', appId]);
+
+      if (result.exitCode != 0) {
+        return false;
+      }
+
+      await refresh();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> setStaticPermissionOverride({
     required String appId,
     required String permissionKey,
     required bool enabled,
   }) async {
-    await _repository.setStaticPermissionOverride(
-      appId: appId,
-      permissionKey: permissionKey,
-      enabled: enabled,
-    );
+    await _repository.setStaticPermissionOverride(appId: appId, permissionKey: permissionKey, enabled: enabled);
   }
 
   Future<void> setDynamicPermissionOverride({
@@ -65,11 +97,7 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
     required String permissionKey,
     required bool enabled,
   }) async {
-    await _repository.setDynamicPermissionOverride(
-      appId: appId,
-      permissionKey: permissionKey,
-      enabled: enabled,
-    );
+    await _repository.setDynamicPermissionOverride(appId: appId, permissionKey: permissionKey, enabled: enabled);
   }
 
   void _startRealtimePermissionWatchers() {
@@ -84,17 +112,10 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
 
   Future<void> _watchPermissionStoreChanges() async {
     final client = DBusClient.session();
-    final store = DBusRemoteObject(
-      client,
-      name: _permissionStoreService,
-      path: DBusObjectPath(_permissionStorePath),
-    );
+    final store = DBusRemoteObject(client, name: _permissionStoreService, path: DBusObjectPath(_permissionStorePath));
 
     try {
-      
-      await store.callMethod(_permissionStoreInterface, 'List', const [
-        DBusString('background'),
-      ]);
+      await store.callMethod(_permissionStoreInterface, 'List', const [DBusString('background')]);
 
       _permissionStoreClient = client;
       final signalStream = DBusRemoteObjectSignalStream(
@@ -103,12 +124,7 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
         name: 'Changed',
       );
 
-      _permissionStoreChangedSubscription = signalStream.listen(
-        (_) => _scheduleRefresh(),
-        onError: (_) {
-          
-        },
-      );
+      _permissionStoreChangedSubscription = signalStream.listen((_) => _scheduleRefresh(), onError: (_) {});
     } catch (_) {
       client.close();
     }
@@ -122,18 +138,12 @@ class InstalledAppsBloc extends Cubit<InstalledAppsState> {
       if (!await userDir.exists()) {
         await userDir.create(recursive: true);
       }
-      _userOverridesSubscription = userDir.watch().listen(
-        (_) => _scheduleRefresh(),
-        onError: (_) {},
-      );
+      _userOverridesSubscription = userDir.watch().listen((_) => _scheduleRefresh(), onError: (_) {});
     }
 
     final systemDir = Directory('/var/lib/flatpak/overrides');
     if (await systemDir.exists()) {
-      _systemOverridesSubscription = systemDir.watch().listen(
-        (_) => _scheduleRefresh(),
-        onError: (_) {},
-      );
+      _systemOverridesSubscription = systemDir.watch().listen((_) => _scheduleRefresh(), onError: (_) {});
     }
   }
 

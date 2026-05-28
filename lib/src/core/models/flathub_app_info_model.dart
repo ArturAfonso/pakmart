@@ -1,6 +1,5 @@
-
-
 class FlathubAppInfo {
+  final String type;
   final String id;
   final String name;
   final String? summary;
@@ -9,14 +8,19 @@ class FlathubAppInfo {
   final String? projectLicense;
   final String? icon;
   final List<String>? categories;
+  final List<String>? keywords;
   final List<String>? provides;
   final List<FlathubRelease>? releases;
   final FlathubBundle? bundle;
   final List<FlathubScreenshot>? screenshots;
   final List<FlathubIcon>? icons;
+  final List<FlathubBranding>? branding;
+  final Map<String, dynamic>? metadata;
+  final bool? isMobileFriendly;
   final Map<String, dynamic>? urls;
 
   FlathubAppInfo({
+    required this.type,
     required this.id,
     required this.name,
     this.summary,
@@ -25,16 +29,21 @@ class FlathubAppInfo {
     this.projectLicense,
     this.icon,
     this.categories,
+    this.keywords,
     this.provides,
     this.releases,
     this.bundle,
     this.screenshots,
     this.icons,
+    this.branding,
+    this.metadata,
+    this.isMobileFriendly,
     this.urls,
   });
 
   factory FlathubAppInfo.fromJson(Map<String, dynamic> json) {
     return FlathubAppInfo(
+      type: (json['type'] as String?) ?? 'desktop-application',
       id: json['id'],
       name: json['name'],
       summary: json['summary'],
@@ -43,61 +52,59 @@ class FlathubAppInfo {
       projectLicense: json['project_license'],
       icon: json['icon'],
       categories: (json['categories'] as List?)?.cast<String>(),
+      keywords: (json['keywords'] as List?)?.cast<String>(),
       provides: (json['provides'] as List?)?.cast<String>(),
-      releases: (json['releases'] as List?)
-          ?.map((e) => FlathubRelease.fromJson(e))
-          .toList(),
+      releases: (json['releases'] as List?)?.map((e) => FlathubRelease.fromJson(e)).toList(),
       bundle: json['bundle'] != null ? FlathubBundle.fromJson(json['bundle']) : null,
-      screenshots: (json['screenshots'] as List?)
-          ?.map((e) => FlathubScreenshot.fromJson(e))
-          .toList(),
-      icons: (json['icons'] as List?)
-          ?.map((e) => FlathubIcon.fromJson(e))
-          .toList(),
+      screenshots: (json['screenshots'] as List?)?.map((e) => FlathubScreenshot.fromJson(e)).toList(),
+      icons: (json['icons'] as List?)?.map((e) => FlathubIcon.fromJson(e)).toList(),
+      branding: (json['branding'] as List?)?.map((e) => FlathubBranding.fromJson(e)).toList(),
+      metadata: json['metadata'] as Map<String, dynamic>?,
+      isMobileFriendly: json['isMobileFriendly'] as bool?,
       urls: json['urls'] as Map<String, dynamic>?,
     );
+  }
+}
+
+class FlathubBranding {
+  final String value;
+  final String? schemePreference;
+  final String type;
+
+  FlathubBranding({required this.value, this.schemePreference, required this.type});
+
+  factory FlathubBranding.fromJson(Map<String, dynamic> json) {
+    return FlathubBranding(value: json['value'], schemePreference: json['scheme_preference'], type: json['type']);
   }
 }
 
 class FlathubBundle {
   final String value;
   final String type;
-  final String sdk;
-  final String runtime;
+  final String? sdk;
+  final String? runtime;
 
-  FlathubBundle({
-    required this.value,
-    required this.type,
-    required this.sdk,
-    required this.runtime,
-  });
+  FlathubBundle({required this.value, required this.type, this.sdk, this.runtime});
 
   factory FlathubBundle.fromJson(Map<String, dynamic> json) {
-    return FlathubBundle(
-      value: json['value'],
-      type: json['type'],
-      sdk: json['sdk'],
-      runtime: json['runtime'],
-    );
+    return FlathubBundle(value: json['value'], type: json['type'], sdk: json['sdk'], runtime: json['runtime']);
   }
 }
 
 class FlathubRelease {
-  final String version;
+  final String? version;
   final String? type;
   final String? timestamp;
+  final String? description;
 
-  FlathubRelease({
-    required this.version,
-    this.type,
-    this.timestamp,
-  });
+  FlathubRelease({this.version, this.type, this.timestamp, this.description});
 
   factory FlathubRelease.fromJson(Map<String, dynamic> json) {
     return FlathubRelease(
       version: json['version'],
       type: json['type'],
       timestamp: json['timestamp'],
+      description: json['description'],
     );
   }
 }
@@ -107,17 +114,11 @@ class FlathubScreenshot {
   final String? caption;
   final bool? isDefault;
 
-  FlathubScreenshot({
-    required this.sizes,
-    this.caption,
-    this.isDefault,
-  });
+  FlathubScreenshot({required this.sizes, this.caption, this.isDefault});
 
   factory FlathubScreenshot.fromJson(Map<String, dynamic> json) {
     return FlathubScreenshot(
-      sizes: (json['sizes'] as List)
-          .map((e) => FlathubScreenshotSize.fromJson(e))
-          .toList(),
+      sizes: (json['sizes'] as List).map((e) => FlathubScreenshotSize.fromJson(e)).toList(),
       caption: json['caption'],
       isDefault: json['default'],
     );
@@ -130,20 +131,10 @@ class FlathubScreenshotSize {
   final String width;
   final String height;
 
-  FlathubScreenshotSize({
-    required this.scale,
-    required this.src,
-    required this.width,
-    required this.height,
-  });
+  FlathubScreenshotSize({required this.scale, required this.src, required this.width, required this.height});
 
   factory FlathubScreenshotSize.fromJson(Map<String, dynamic> json) {
-    return FlathubScreenshotSize(
-      scale: json['scale'],
-      src: json['src'],
-      width: json['width'],
-      height: json['height'],
-    );
+    return FlathubScreenshotSize(scale: json['scale'], src: json['src'], width: json['width'], height: json['height']);
   }
 }
 
@@ -154,13 +145,7 @@ class FlathubIcon {
   final int width;
   final int height;
 
-  FlathubIcon({
-    this.scale,
-    required this.url,
-    required this.type,
-    required this.width,
-    required this.height,
-  });
+  FlathubIcon({this.scale, required this.url, required this.type, required this.width, required this.height});
 
   factory FlathubIcon.fromJson(Map<String, dynamic> json) {
     return FlathubIcon(

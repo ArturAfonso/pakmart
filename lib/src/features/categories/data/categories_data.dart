@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pakmart/src/features/categories/models/categories_model.dart';
 
-
 abstract final class CategoriesData {
   static const categories = [
     CategoryData(
@@ -323,10 +322,34 @@ abstract final class CategoriesData {
     return null;
   }
 
+  static CategoryAppData? appByFlatpakId(String flatpakId) {
+    for (final category in categories) {
+      for (final app in category.apps) {
+        if (app.flatpakId == flatpakId) {
+          return app;
+        }
+      }
+    }
+
+    return null;
+  }
+
   static CategoryData? categoryByAppId(String appId) {
     for (final category in categories) {
       for (final app in category.apps) {
         if (app.id == appId) {
+          return category;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  static CategoryData? categoryByFlatpakId(String flatpakId) {
+    for (final category in categories) {
+      for (final app in category.apps) {
+        if (app.flatpakId == flatpakId) {
           return category;
         }
       }

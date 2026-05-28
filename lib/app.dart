@@ -7,6 +7,7 @@ import 'package:pakmart/src/core/locale/app_language_cubit.dart';
 import 'package:pakmart/src/core/theme/app_theme.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/di/injector.dart';
+import 'package:pakmart/src/features/home/bloc/home_featured_bloc.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
 
 class MyApp extends StatelessWidget {
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => sl<ThemeCubit>()..loadTheme()),
         BlocProvider<AppLanguageCubit>(create: (_) => sl<AppLanguageCubit>()..loadLanguage()),
+        BlocProvider(create: (_) => sl<HomeFeaturedBloc>()),
         BlocProvider(create: (_) => sl<InstalledAppsBloc>()..loadInstalledApps()),
       ],
 

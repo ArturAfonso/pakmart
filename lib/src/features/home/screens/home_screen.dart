@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
-import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/features/categories/data/categories_data.dart';
+import 'package:pakmart/src/features/home/bloc/home_featured_bloc.dart';
+import 'package:pakmart/src/features/home/bloc/home_featured_event.dart';
+import 'package:pakmart/src/features/home/bloc/home_featured_state.dart';
+import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
 import 'package:pakmart/src/features/home/widgets/categoryshortcutcard_wieget.dart';
 import 'package:pakmart/src/features/home/widgets/compact_appcard_widget.dart';
 import 'package:pakmart/src/features/home/widgets/home_carrousel_widget.dart';
@@ -23,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static final _featuredApps = [
+  static final _featuredAppsFallback = [
     CategoriesData.appById('flowstudio')!,
     CategoriesData.appById('teleframe')!,
     CategoriesData.appById('gimp')!,
@@ -31,9 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static final _popularApps = [
     CategoriesData.appById('gimp')!,
-    CategoriesData.appById('vscodium')!,
+    /*  CategoriesData.appById('vscodium')!,
     CategoriesData.appById('teleframe')!,
-    CategoriesData.appById('north-browser')!,
+    CategoriesData.appById('north-browser')!, */
   ];
 
   static final _weeklyApps = [
@@ -54,10 +57,16 @@ class _HomeScreenState extends State<HomeScreen> {
     CategoriesData.appById('vscodium')!,
   ];
 
-
-
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  late final List<HomeFeaturedAppData> _fallbackFeaturedApps;
+
+  @override
+  void initState() {
+    super.initState();
+    _fallbackFeaturedApps = _featuredAppsFallback.map(HomeFeaturedAppData.fromCategoryApp).toList(growable: false);
+    context.read<HomeFeaturedBloc>().add(const HomeFeaturedRequested());
+  }
 
   @override
   void dispose() {
@@ -84,45 +93,19 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'BOAS-VINDAS, LEITOR',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        letterSpacing: 4,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: secondaryColor,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Apps escolhidos a dedo,\n',
-                        style: AppTextStyles.titleLargeNormal.copyWith(
-                          color: titleColor,
-                          fontSize: 58,
-                          height: 1.02,
-                        ),
-                      ),
-                      TextSpan(
-                        text: 'como livros em uma estante.',
-                        style: AppTextStyles.titleLargeItalic.copyWith(
-                          color: AppColors.accent,
-                          fontSize: 58,
-                          height: 1.02,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 28),
-                HomeCarousel(
-                  apps: _featuredApps,
-                  currentPage: _currentPage,
-                  controller: _pageController,
-                  onPageChanged: (page) => setState(() => _currentPage = page),
-                  onOpenExternal: _openPlaceholderUrl,
+                BlocBuilder<HomeFeaturedBloc, HomeFeaturedState>(
+                  builder: (context, state) {
+                    final featuredApps = state.apps.isNotEmpty ? state.apps : _fallbackFeaturedApps;
+
+                    return HomeCarousel(
+                      apps: featuredApps,
+                      currentPage: _currentPage,
+                      controller: _pageController,
+                      onPageChanged: (page) => setState(() => _currentPage = page),
+                      onOpenExternal: _openFlathubApp,
+                      autoAdvanceInterval: const Duration(seconds: 10),
+                    );
+                  },
                 ),
                 const SizedBox(height: 46),
                 SectionHeader(
@@ -260,18 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _openPlaceholderUrl() async {
-    final uri = Uri.parse('https://www.google.com');
+  Future<void> _openFlathubApp(String url) async {
+    final uri = Uri.parse(url);
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 }
-
-
-
-
-
-
-
-
-
-
