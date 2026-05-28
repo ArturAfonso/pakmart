@@ -23,7 +23,7 @@ class HomeFeaturedRepository {
   }
 
   HomeFeaturedAppData _toFeaturedData(FlathubAppInfo info) {
-    final mappedLocal = CategoriesData.appById(info.id);
+    final mappedLocal = CategoriesData.appById(info.id) ?? CategoriesData.appByFlatpakId(info.id);
     final iconUrl = _chooseIconUrl(info);
     final gradient = _resolveHeroGradient(info);
 
@@ -37,7 +37,7 @@ class HomeFeaturedRepository {
       heroGradientEnd: gradient.$2,
       iconUrl: iconUrl,
       iconData: mappedLocal?.icon ?? Icons.apps_rounded,
-      detailRouteAppId: mappedLocal?.id,
+      detailRouteAppId: info.id,
     );
   }
 
