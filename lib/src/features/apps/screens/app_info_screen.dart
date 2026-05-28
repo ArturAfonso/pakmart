@@ -41,6 +41,7 @@ class _AppInfoView extends StatefulWidget {
 
 class _AppInfoViewState extends State<_AppInfoView> {
   bool _isMutating = false;
+  _MutationAction _mutationAction = _MutationAction.none;
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +134,8 @@ class _AppInfoViewState extends State<_AppInfoView> {
                           borderColor: borderColor,
                           isInstalled: isInstalled,
                           isBusy: _isMutating,
+                          isInstalling: _isMutating && _mutationAction == _MutationAction.install,
+                          isUninstalling: _isMutating && _mutationAction == _MutationAction.uninstall,
                           onInstallPressed: () => _handleInstall(detail),
                           onOpenPressed: () => _handleOpen(detail),
                           onUninstallPressed: () => _handleUninstall(detail),
@@ -259,6 +262,7 @@ class _AppInfoViewState extends State<_AppInfoView> {
   Future<void> _handleInstall(AppDetailData detail) async {
     setState(() {
       _isMutating = true;
+      _mutationAction = _MutationAction.install;
     });
 
     final success = await context.read<InstalledAppsBloc>().installApp(detail.appId);
@@ -269,6 +273,7 @@ class _AppInfoViewState extends State<_AppInfoView> {
 
     setState(() {
       _isMutating = false;
+      _mutationAction = _MutationAction.none;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -311,6 +316,7 @@ class _AppInfoViewState extends State<_AppInfoView> {
 
     setState(() {
       _isMutating = true;
+      _mutationAction = _MutationAction.uninstall;
     });
 
     final success = await installedAppsBloc.uninstallApp(detail.appId);
@@ -321,6 +327,7 @@ class _AppInfoViewState extends State<_AppInfoView> {
 
     setState(() {
       _isMutating = false;
+      _mutationAction = _MutationAction.none;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -339,6 +346,8 @@ class _AppInfoViewState extends State<_AppInfoView> {
     context.goNamed(AppRoutes.HOME);
   }
 }
+
+enum _MutationAction { none, install, uninstall }
 
 class _HighlightsWrap extends StatelessWidget {
   const _HighlightsWrap({
@@ -375,35 +384,41 @@ class _HighlightsWrap extends StatelessWidget {
       spacing: 14,
       runSpacing: 14,
       children: [
-        _HighlightCard(
-          label: 'Tamanho',
-          value: sizeValue,
-          caption: sizeCaption,
-          icon: Icons.inventory_2_outlined,
-          titleColor: titleColor,
-          secondaryColor: secondaryColor,
-          surfaceColor: surfaceColor,
-          borderColor: borderColor,
+        Expanded(
+          child: _HighlightCard(
+            label: 'Tamanho',
+            value: sizeValue,
+            caption: sizeCaption,
+            icon: Icons.inventory_2_outlined,
+            titleColor: titleColor,
+            secondaryColor: secondaryColor,
+            surfaceColor: surfaceColor,
+            borderColor: borderColor,
+          ),
         ),
-        _HighlightCard(
-          label: 'Compatibilidade',
-          value: compatibility,
-          caption: app.runtimeName ?? 'Suporte principal',
-          icon: Icons.devices_rounded,
-          titleColor: titleColor,
-          secondaryColor: secondaryColor,
-          surfaceColor: surfaceColor,
-          borderColor: borderColor,
+        Expanded(
+          child: _HighlightCard(
+            label: 'Compatibilidade',
+            value: compatibility,
+            caption: app.runtimeName ?? 'Suporte principal',
+            icon: Icons.devices_rounded,
+            titleColor: titleColor,
+            secondaryColor: secondaryColor,
+            surfaceColor: surfaceColor,
+            borderColor: borderColor,
+          ),
         ),
-        _HighlightCard(
-          label: 'Mensal',
-          value: monthlyValue,
-          caption: monthlyCaption,
-          icon: Icons.ssid_chart_rounded,
-          titleColor: titleColor,
-          secondaryColor: secondaryColor,
-          surfaceColor: surfaceColor,
-          borderColor: borderColor,
+        Expanded(
+          child: _HighlightCard(
+            label: 'Mensal',
+            value: monthlyValue,
+            caption: monthlyCaption,
+            icon: Icons.ssid_chart_rounded,
+            titleColor: titleColor,
+            secondaryColor: secondaryColor,
+            surfaceColor: surfaceColor,
+            borderColor: borderColor,
+          ),
         ),
       ],
     );
@@ -447,7 +462,7 @@ class _HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 200, maxWidth: 250),
+      constraints: const BoxConstraints(minWidth: 200, maxWidth: 250, minHeight: 180, maxHeight: 200),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(

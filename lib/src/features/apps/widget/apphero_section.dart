@@ -27,6 +27,7 @@ class AppHeroSection extends StatelessWidget {
     final gradientEnd = (app.heroGradientEnd ?? surfaceColor).withValues(alpha: isDark ? 0.12 : 0.92);
 
     return Container(
+      height: 250,
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
@@ -42,8 +43,8 @@ class AppHeroSection extends StatelessWidget {
         builder: (context, constraints) {
           final compact = constraints.maxWidth < 560;
           final icon = Container(
-            width: 104,
-            height: 104,
+            width: 134,
+            height: 134,
             decoration: BoxDecoration(color: app.iconBackground, borderRadius: BorderRadius.circular(28)),
             child: _AppIconArt(imageUrl: app.iconUrl, fallbackIcon: app.fallbackIcon, isDark: isDark),
           );
@@ -52,13 +53,13 @@ class AppHeroSection extends StatelessWidget {
 
           if (compact) {
             return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+             crossAxisAlignment: CrossAxisAlignment.center,
               children: [icon, const SizedBox(height: 18), text],
             );
           }
 
           return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               icon,
               const SizedBox(width: 22),
@@ -82,6 +83,7 @@ class _AppDetailsText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -96,18 +98,18 @@ class _AppDetailsText extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.12),
+                  color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.verified_outlined, size: 14, color: AppColors.accent),
+                    const Icon(Icons.verified_outlined, size: 14, color: Colors.white),
                     const SizedBox(width: 4),
                     Text(
                       'VERIFICADO',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppColors.accent,
+                        color: Colors.white,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1,
                       ),
