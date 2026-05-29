@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const HOME = 'home';
   static const APP_INFO = 'app-info';
   static const CATEGORIES = 'categories';
+  static const POPULAR_APPS = 'popular-apps';
   static const CATEGORY_DETAILS = 'category-details';
  //  static const LOGIN = 'login';
   static const DETAILS = 'details'; 
@@ -18,6 +19,7 @@ abstract final class AppRoutes {
   static const homePath = '/';
   static const appInfoPath = '/app/:appId';
   static const categoriesPath = '/categories';
+  static const popularAppsPath = '/popular';
   static const categoryDetailsPath = ':categoryId';
 //  static const loginPath = '/login';
   static const detailsPath = 'details/:id'; // Rota filha não precisa de '/' */

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:pakmart/src/core/locale/app_language_repository.dart';
 import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
+import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
 
 class HomeFeaturedApi {
   HomeFeaturedApi(this._languageRepository, {HttpClient? httpClient}) : _httpClient = httpClient ?? HttpClient();
@@ -42,6 +43,43 @@ class HomeFeaturedApi {
     }
   }
 
+  Future<HomePopularCollectionPageData?> fetchCollectionPage({
+    required HomePopularCollection collection,
+    required int page,
+    int perPage = 24,
+  }) async {
+    final locale = await _resolveApiLocaleCode();
+    final query = <String, String>{
+      'page': page.toString(),
+      'per_page': perPage.toString(),
+      'locale': locale,
+    };
+    final uri = Uri.https('flathub.org', '/api/v2/collection/${collection.apiPath}', query);
+    final response = await _getJsonMap(uri);
+    if (response == null) {
+      return null;
+    }
+
+    final hits = response['hits'];
+    if (hits is! List) {
+      return null;
+    }
+
+    final apps = hits
+        .map((item) => item is Map<String, dynamic> ? HomePopularAppData.fromJson(item) : null)
+        .whereType<HomePopularAppData>()
+        .toList(growable: false);
+
+    return HomePopularCollectionPageData(
+      collection: collection,
+      page: _asInt(response['page']) ?? page,
+      perPage: _asInt(response['hitsPerPage']) ?? perPage,
+      totalPages: _asInt(response['totalPages']) ?? 1,
+      totalHits: _asInt(response['totalHits']) ?? apps.length,
+      apps: apps,
+    );
+  }
+
   Future<Map<String, dynamic>?> _getJsonMap(Uri uri) async {
     try {
       final request = await _httpClient.getUrl(uri);
@@ -79,5 +117,17 @@ class HomeFeaturedApi {
     final month = date.month.toString().padLeft(2, '0');
     final day = date.day.toString().padLeft(2, '0');
     return '$year-$month-$day';
+  }
+
+  int? _asInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return int.tryParse(value?.toString() ?? '');
   }
 }

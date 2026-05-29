@@ -3,6 +3,7 @@ import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
 import 'package:pakmart/src/features/categories/data/categories_data.dart';
 import 'package:pakmart/src/features/home/data/home_featured_api.dart';
 import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
+import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
 
 class HomeFeaturedRepository {
   HomeFeaturedRepository(this._api);
@@ -20,6 +21,44 @@ class HomeFeaturedRepository {
     }
 
     return _toFeaturedData(info);
+  }
+
+  Future<HomePopularCollectionPageData?> fetchCollectionPage({
+    required HomePopularCollection collection,
+    required int page,
+    int perPage = 24,
+  }) async {
+    final response = await _api.fetchCollectionPage(collection: collection, page: page, perPage: perPage);
+    if (response == null) {
+      return null;
+    }
+
+    final sanitizedApps = response.apps
+        .map(
+          (app) => HomePopularAppData(
+            appId: app.appId,
+            name: app.name,
+            summary: _sanitizeText(app.summary) ?? 'Sem resumo disponível.',
+            developerName: app.developerName,
+            iconUrl: app.iconUrl,
+            mainCategory: app.mainCategory,
+            verified: app.verified,
+            installsLastMonth: app.installsLastMonth,
+            favoritesCount: app.favoritesCount,
+            trendingScore: app.trendingScore,
+            isMobileFriendly: app.isMobileFriendly,
+          ),
+        )
+        .toList(growable: false);
+
+    return HomePopularCollectionPageData(
+      collection: response.collection,
+      page: response.page,
+      perPage: response.perPage,
+      totalPages: response.totalPages,
+      totalHits: response.totalHits,
+      apps: sanitizedApps,
+    );
   }
 
   HomeFeaturedAppData _toFeaturedData(FlathubAppInfo info) {

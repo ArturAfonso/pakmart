@@ -4,13 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/features/apps/screens/app_info_screen.dart';
 import 'package:pakmart/src/features/categories/screens/category_detail_screen.dart';
 import 'package:pakmart/src/features/categories/screens/categories_screen.dart';
+import 'package:pakmart/src/features/home/bloc/popular_apps_bloc.dart';
+import 'package:pakmart/src/features/home/bloc/popular_apps_event.dart';
 import 'package:pakmart/src/features/home/screens/home_screen.dart';
+import 'package:pakmart/src/features/home/screens/popular_apps_screen.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_state.dart';
 import 'package:pakmart/src/features/installed/data/installed_apps_data.dart';
 import 'package:pakmart/src/features/installed/screens/installed_detail_screen.dart';
 import 'package:pakmart/src/features/installed/screens/installed_screen.dart';
 import 'package:pakmart/src/features/preferences/screens/preferences_screen.dart';
+import 'package:pakmart/src/di/injector.dart';
 import 'package:pakmart/src/features/shell/screens/app_shell.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
@@ -24,6 +28,14 @@ GoRouter createRouter() {
         },
         routes: [
           GoRoute(name: AppRoutes.HOME, path: AppRoutes.homePath, builder: (context, state) => const HomeScreen()),
+          GoRoute(
+            name: AppRoutes.POPULAR_APPS,
+            path: AppRoutes.popularAppsPath,
+            builder: (context, state) => BlocProvider(
+              create: (_) => sl<PopularAppsBloc>()..add(const PopularAppsRequested()),
+              child: const PopularAppsScreen(),
+            ),
+          ),
           GoRoute(
             name: AppRoutes.APP_INFO,
             path: AppRoutes.appInfoPath,

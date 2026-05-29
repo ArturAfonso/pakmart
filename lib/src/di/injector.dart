@@ -10,6 +10,7 @@ import 'package:pakmart/src/features/apps/bloc/app_info_cubit.dart';
 import 'package:pakmart/src/features/apps/data/app_info_api.dart';
 import 'package:pakmart/src/features/apps/repositories/app_info_repository.dart';
 import 'package:pakmart/src/features/home/bloc/home_featured_bloc.dart';
+import 'package:pakmart/src/features/home/bloc/popular_apps_bloc.dart';
 import 'package:pakmart/src/features/home/data/home_featured_api.dart';
 import 'package:pakmart/src/features/home/repositories/home_featured_repository.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
@@ -66,4 +67,5 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<HomeFeaturedApi>(() => HomeFeaturedApi(sl()));
   sl.registerLazySingleton<HomeFeaturedRepository>(() => HomeFeaturedRepository(sl()));
   sl.registerFactory<HomeFeaturedBloc>(() => HomeFeaturedBloc(sl()));
+  sl.registerFactory<PopularAppsBloc>(() => PopularAppsBloc(sl()));
 }
