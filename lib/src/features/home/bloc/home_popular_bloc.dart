@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pakmart/src/features/home/bloc/popular_apps_state.dart';
 import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
+import 'package:pakmart/src/features/home/bloc/popular_apps_state.dart';
 import 'package:pakmart/src/features/home/repositories/home_featured_repository.dart';
 
 sealed class HomePopularEvent {
@@ -16,12 +16,20 @@ final class HomePopularRetried extends HomePopularEvent {
 }
 
 class HomePopularBloc extends Bloc<HomePopularEvent, PopularAppsState> {
-  HomePopularBloc(this._repository) : super(const PopularAppsState(perPage: 4)) {
+  HomePopularBloc(
+    this._repository, {
+    required HomePopularCollection collection,
+    int perPage = 4,
+  })  : _collection = collection,
+        _perPage = perPage,
+        super(PopularAppsState(collection: collection, perPage: perPage)) {
     on<HomePopularRequested>(_onRequested);
     on<HomePopularRetried>(_onRetried);
   }
 
   final HomeFeaturedRepository _repository;
+  final HomePopularCollection _collection;
+  final int _perPage;
 
   Future<void> _onRequested(HomePopularRequested event, Emitter<PopularAppsState> emit) async {
     await _load(emit);
@@ -35,9 +43,9 @@ class HomePopularBloc extends Bloc<HomePopularEvent, PopularAppsState> {
     emit(state.copyWith(status: PopularAppsStatus.loading, clearErrorMessage: true));
 
     final response = await _repository.fetchCollectionPage(
-      collection: HomePopularCollection.popular,
+      collection: _collection,
       page: 1,
-      perPage: 4,
+      perPage: _perPage,
     );
 
     if (response == null || response.apps.isEmpty) {

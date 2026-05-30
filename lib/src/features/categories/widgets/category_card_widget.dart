@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
-import 'package:pakmart/src/features/categories/models/categories_model.dart';
+import 'package:pakmart/src/features/categories/models/category_remote_models.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -17,7 +17,7 @@ class CategoryCard extends StatelessWidget {
 		required this.borderColor,
 	});
 
-	final CategoryData data;
+	final CategoryShelfData data;
 	final Color titleColor;
 	final Color secondaryColor;
 	final Color surfaceColor;
@@ -73,7 +73,7 @@ class CategoryCard extends StatelessWidget {
 							),
 							const SizedBox(height: 18),
 							Text(
-								'${data.appCount} ${data.appCount == 1 ? 'app' : 'apps'}',
+								'Ver aplicativos',
 								style: Theme.of(context).textTheme.bodySmall?.copyWith(
 										color: AppColors.accent,
 										fontWeight: FontWeight.w700,

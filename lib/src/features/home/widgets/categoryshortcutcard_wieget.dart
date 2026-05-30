@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pakmart/src/features/categories/models/categories_model.dart';
+import 'package:pakmart/src/features/categories/models/category_remote_models.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class CategoryShortcutCard extends StatelessWidget {
@@ -14,7 +14,7 @@ class CategoryShortcutCard extends StatelessWidget {
     required this.borderColor,
   });
 
-  final CategoryData category;
+  final CategoryShelfData category;
   final Color titleColor;
   final Color secondaryColor;
   final Color surfaceColor;

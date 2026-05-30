@@ -3,7 +3,6 @@ import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/features/apps/data/app_info_api.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
-import 'package:pakmart/src/features/categories/data/categories_data.dart';
 
 enum AppInfoLoadFailureReason { notFound, offline, server, invalidData, unknown }
 
@@ -19,8 +18,7 @@ class AppInfoRepository {
   final AppInfoApi _api;
 
   Future<AppDetailData?> loadDetail(String routeAppId) async {
-    final localApp = CategoriesData.appById(routeAppId) ?? CategoriesData.appByFlatpakId(routeAppId);
-    final remoteAppId = localApp?.flatpakId ?? routeAppId;
+    final remoteAppId = routeAppId;
 
     FlathubAppInfo? info;
     try {

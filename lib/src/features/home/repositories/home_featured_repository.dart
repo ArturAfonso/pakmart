@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
-import 'package:pakmart/src/features/categories/data/categories_data.dart';
 import 'package:pakmart/src/features/home/data/home_featured_api.dart';
 import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
 import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
@@ -62,7 +61,6 @@ class HomeFeaturedRepository {
   }
 
   HomeFeaturedAppData _toFeaturedData(FlathubAppInfo info) {
-    final mappedLocal = CategoriesData.appById(info.id) ?? CategoriesData.appByFlatpakId(info.id);
     final iconUrl = _chooseIconUrl(info);
     final gradient = _resolveHeroGradient(info);
 
@@ -75,7 +73,7 @@ class HomeFeaturedRepository {
       heroGradientStart: gradient.$1,
       heroGradientEnd: gradient.$2,
       iconUrl: iconUrl,
-      iconData: mappedLocal?.icon ?? Icons.apps_rounded,
+      iconData: Icons.apps_rounded,
       detailRouteAppId: info.id,
     );
   }

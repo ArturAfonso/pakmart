@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/features/apps/screens/app_info_screen.dart';
+import 'package:pakmart/src/features/categories/bloc/categories_bloc.dart';
+import 'package:pakmart/src/features/categories/bloc/category_apps_bloc.dart';
 import 'package:pakmart/src/features/categories/screens/category_detail_screen.dart';
 import 'package:pakmart/src/features/categories/screens/categories_screen.dart';
 import 'package:pakmart/src/features/home/bloc/popular_apps_bloc.dart';
@@ -44,13 +46,21 @@ GoRouter createRouter() {
           GoRoute(
             name: AppRoutes.CATEGORIES,
             path: AppRoutes.categoriesPath,
-            builder: (context, state) => const CategoriesScreen(),
+            builder: (context, state) => BlocProvider(
+              create: (_) => sl<CategoriesBloc>()..add(const CategoriesRequested()),
+              child: const CategoriesScreen(),
+            ),
             routes: [
               GoRoute(
                 name: AppRoutes.CATEGORY_DETAILS,
                 path: AppRoutes.categoryDetailsPath,
-                builder: (context, state) =>
-                    CategoryDetailScreen(categoryId: state.pathParameters[AppRoutes.categoryIdParam]!),
+                builder: (context, state) {
+                  final categoryId = state.pathParameters[AppRoutes.categoryIdParam]!;
+                  return BlocProvider(
+                    create: (_) => CategoryAppsBloc(repository: sl(), category: categoryId)..add(const CategoryAppsRequested()),
+                    child: CategoryDetailScreen(categoryId: categoryId),
+                  );
+                },
               ),
             ],
           ),
