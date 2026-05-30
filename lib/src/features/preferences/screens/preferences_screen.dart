@@ -18,10 +18,10 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
-  bool _searchInSummary = false;
-  bool _searchInDescription = false;
-  bool _showUnverified = true;
-  String _selectedSource = 'flathub';
+  final bool _searchInSummary = false;
+  final bool _searchInDescription = false;
+  final bool _showUnverified = true;
+  final String _selectedSource = 'flathub';
 
   static const Map<String, String> _languageTitles = {
     'pt_BR': 'Portugues (Brasil)',
@@ -80,7 +80,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   ),
                 ),
                 const SizedBox(height: 36),
-                PreferenceSection(
+               /*  PreferenceSection(
                   title: 'Pesquisa',
                   description: 'O titulo do app é sempre buscado. Ative para procurar mais a fundo (mais lento).',
                   child: Column(
@@ -180,7 +180,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 36),
+                const SizedBox(height: 36), */
                 PreferenceSection(
                   title: 'Aparência',
                   description: 'Tema visual da loja.',
