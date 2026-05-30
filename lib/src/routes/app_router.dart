@@ -16,6 +16,8 @@ import 'package:pakmart/src/features/installed/data/installed_apps_data.dart';
 import 'package:pakmart/src/features/installed/screens/installed_detail_screen.dart';
 import 'package:pakmart/src/features/installed/screens/installed_screen.dart';
 import 'package:pakmart/src/features/preferences/screens/preferences_screen.dart';
+import 'package:pakmart/src/features/search/bloc/search_bloc.dart';
+import 'package:pakmart/src/features/search/screens/search_screen.dart';
 import 'package:pakmart/src/di/injector.dart';
 import 'package:pakmart/src/features/shell/screens/app_shell.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
@@ -57,7 +59,8 @@ GoRouter createRouter() {
                 builder: (context, state) {
                   final categoryId = state.pathParameters[AppRoutes.categoryIdParam]!;
                   return BlocProvider(
-                    create: (_) => CategoryAppsBloc(repository: sl(), category: categoryId)..add(const CategoryAppsRequested()),
+                    create: (_) =>
+                        CategoryAppsBloc(repository: sl(), category: categoryId)..add(const CategoryAppsRequested()),
                     child: CategoryDetailScreen(categoryId: categoryId),
                   );
                 },
@@ -107,6 +110,11 @@ GoRouter createRouter() {
             name: AppRoutes.PREFERENCES,
             path: AppRoutes.preferencesPath,
             builder: (context, state) => const PreferencesScreen(),
+          ),
+          GoRoute(
+            name: AppRoutes.SEARCH,
+            path: AppRoutes.searchPath,
+            builder: (context, state) => BlocProvider(create: (_) => sl<SearchBloc>(), child: const SearchScreen()),
           ),
         ],
       ),

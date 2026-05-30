@@ -25,6 +25,9 @@ import 'package:pakmart/src/features/installed/repositories/installed_app_invent
 import 'package:pakmart/src/features/installed/repositories/installed_apps_repository_new.dart';
 import 'package:pakmart/src/features/installed/repositories/local_metadata_reader.dart';
 import 'package:pakmart/src/features/installed/repositories/static_permissions_reader.dart';
+import 'package:pakmart/src/features/search/bloc/search_bloc.dart';
+import 'package:pakmart/src/features/search/data/search_api.dart';
+import 'package:pakmart/src/features/search/repositories/search_repository.dart';
 import 'package:pakmart/src/routes/app_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -75,4 +78,8 @@ Future<void> configureDependencies() async {
   sl.registerLazySingleton<CategoriesApi>(() => CategoriesApi(sl()));
   sl.registerLazySingleton<CategoriesRepository>(() => CategoriesRepository(sl()));
   sl.registerFactory<CategoriesBloc>(() => CategoriesBloc(sl()));
+
+  sl.registerLazySingleton<SearchApi>(() => SearchApi(sl()));
+  sl.registerLazySingleton<SearchRepository>(() => SearchRepository(sl()));
+  sl.registerFactory<SearchBloc>(() => SearchBloc(sl()));
 }
