@@ -14,6 +14,38 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+namespace {
+constexpr gint kDefaultWindowWidth = 1280;
+constexpr gint kDefaultWindowHeight = 720;
+constexpr gint kMinWindowWidth = 960;
+constexpr gint kMinWindowHeight = 640;
+
+gchar* resolve_window_icon_path() {
+  g_autoptr(GError) error = nullptr;
+  g_autofree gchar* executable_path = g_file_read_link("/proc/self/exe", &error);
+  if (executable_path == nullptr) {
+    return nullptr;
+  }
+
+  g_autofree gchar* executable_dir = g_path_get_dirname(executable_path);
+  return g_build_filename(executable_dir, "data", "flutter_assets", "assets",
+                          "icons", "logo-custom.png", nullptr);
+}
+
+void apply_window_icon(GtkWindow* window) {
+  g_autofree gchar* icon_path = resolve_window_icon_path();
+  if (icon_path == nullptr) {
+    return;
+  }
+
+  g_autoptr(GError) error = nullptr;
+  gtk_window_set_icon_from_file(window, icon_path, &error);
+  if (error != nullptr) {
+    g_warning("Failed to load window icon: %s", error->message);
+  }
+}
+}  // namespace
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -52,7 +84,14 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "pakmart");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  gtk_window_set_default_size(window, kDefaultWindowWidth,
+                              kDefaultWindowHeight);
+
+  GdkGeometry geometry = {};
+  geometry.min_width = kMinWindowWidth;
+  geometry.min_height = kMinWindowHeight;
+  gtk_window_set_geometry_hints(window, nullptr, &geometry, GDK_HINT_MIN_SIZE);
+  apply_window_icon(window);
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
   fl_dart_project_set_dart_entrypoint_arguments(

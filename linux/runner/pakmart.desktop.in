@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Pakmart
+Comment=Explore e gerencie aplicativos Flatpak
+Exec=@PAKMART_DESKTOP_EXEC@
+Icon=@PAKMART_DESKTOP_ICON@
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
+StartupWMClass=@APPLICATION_ID@
