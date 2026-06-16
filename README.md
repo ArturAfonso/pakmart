@@ -28,30 +28,6 @@ Build a release bundle:
 flutter build linux --release
 ```
 
-Install the current release locally with launcher and icon integration:
-
-```bash
-./scripts/install_linux_release.sh
-```
-
-Remove the local installation:
-
-```bash
-./scripts/uninstall_linux_release.sh
-```
-
-Generate a tar.gz artifact ready for GitHub Releases:
-
-```bash
-./scripts/package_linux_release.sh
-```
-
-The generated archive is written to `dist/` and includes:
-
-- the Linux release bundle
-- `install.sh`
-- `uninstall.sh`
-
 ---
 To learn more about Flutter:
 

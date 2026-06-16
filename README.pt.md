@@ -27,28 +27,6 @@ flutter build linux --release
 
 Instalar localmente a release atual com launcher e ícone no sistema:
 
-```bash
-./scripts/install_linux_release.sh
-```
-
-Remover a instalação local:
-
-```bash
-./scripts/uninstall_linux_release.sh
-```
-
-Gerar um `.tar.gz` pronto para publicar no GitHub Releases:
-
-```bash
-./scripts/package_linux_release.sh
-```
-
-O arquivo gerado sai em `dist/` e inclui:
-
-- o bundle release para Linux
-- `install.sh`
-- `uninstall.sh`
-
 ---
 Para saber mais sobre Flutter:
 
