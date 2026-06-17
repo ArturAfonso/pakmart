@@ -17,6 +17,19 @@ Há planos para expandir o suporte, permitindo o gerenciamento de outros tipos d
 - Suporte inicial para Flatpak
 - Foco em multiplataforma Linux Desktop
 
+## Capturas de tela
+
+<table>
+	<tr>
+		<td><img src="assets/images/screenshot%201.png" alt="Pakmart em tema claro" width="100%"></td>
+		<td><img src="assets/images/Screenshot%20%202.png" alt="Pakmart em tema escuro" width="100%"></td>
+	</tr>
+	<tr>
+		<td><img src="assets/images/Screenshot%20%203.png" alt="Pakmart na tela de categorias" width="100%"></td>
+		<td><img src="assets/images/Screenshot%20%204.png" alt="Pakmart na tela de detalhes" width="100%"></td>
+	</tr>
+</table>
+
 ## Release Linux
 
 Gerar a build release:
