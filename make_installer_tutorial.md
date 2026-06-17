@@ -124,13 +124,7 @@ Observações importantes:
 
 ## 10. Criar o arquivo de controle do Debian
 
-Crie este arquivo:
-
-```bash
-source=("$pkgname::git+https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>.git")
-```
-
-Exemplo:
+Crie o arquivo `pkg-deb/DEBIAN/control` com este conteúdo:
 
 ```debcontrol
 Package: pakmart
@@ -156,6 +150,9 @@ chmod 644 pkg-deb/usr/share/applications/br.com.arturafonso.pakmart.desktop
 ## 12. Gerar o arquivo .deb
 
 ```bash
+dpkg-deb --build pkg-deb pakmart_1.0.0_amd64.deb
+```
+
 O arquivo final ficará no diretório atual.
 
 ## 13. Testar o pacote gerado
@@ -198,6 +195,8 @@ O esperado é algo como:
 ```ini
 Exec=/opt/pakmart/pakmart
 Icon=br.com.arturafonso.pakmart
+```
+
 ## 15. Publicar no GitHub Releases
 
 
@@ -229,6 +228,8 @@ O objetivo continua o mesmo: montar uma área limpa de empacotamento para não l
 ```bash
 git clone <URL_DO_REPOSITORIO>
 cd pakmart
+```
+
 Se você já tem o projeto aberto, apenas entre na pasta dele.
 
 ## 2. Instalar dependências do Flutter
@@ -394,8 +395,3 @@ Icon=br.com.arturafonso.pakmart
 ```
 
 Se aparecer `/home/seu-usuario/...`, então o pacote foi montado do jeito errado.
-
-
-
-
-# Pakmart: tutorial para criar release para baseados em Arch
