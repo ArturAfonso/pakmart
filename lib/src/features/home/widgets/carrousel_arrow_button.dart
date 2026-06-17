@@ -10,14 +10,23 @@ class CarouselArrowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton.filledTonal(
-      onPressed: onPressed,
-      style: IconButton.styleFrom(
-        backgroundColor: Colors.white.withValues(alpha: 0.12),
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Colors.black38, // Cor da borda
+          width: 0.3, // Espessura da borda
+        ),
       ),
-      icon: Icon(icon),
+      child: IconButton.filledTonal(
+        onPressed: onPressed,
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.white.withAlpha(15),
+          foregroundColor: Colors.white,
+          shape: const CircleBorder(),
+        ),
+        icon: Icon(icon, ),
+      ),
     );
   }
 }

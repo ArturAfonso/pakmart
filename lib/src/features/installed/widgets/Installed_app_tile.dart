@@ -3,8 +3,11 @@
 
 
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -30,6 +33,7 @@ class InstalledAppTile extends StatelessWidget {
 				onTap: () => context.pushNamed(
 					AppRoutes.INSTALLED_DETAILS,
 					pathParameters: {AppRoutes.appIdParam: app.id},
+          extra: app,
 				),
 				borderRadius: BorderRadius.circular(28),
 				child: Padding(
@@ -42,13 +46,13 @@ class InstalledAppTile extends StatelessWidget {
 								crossAxisAlignment: CrossAxisAlignment.center,
 								children: [
 									Container(
-										width: 72,
-										height: 72,
+										width: 48,
+										height: 48,
 										decoration: BoxDecoration(
-											color: app.iconBackground,
+											color: Colors.transparent,
 											borderRadius: BorderRadius.circular(20),
 										),
-										child: Icon(app.icon, size: 36, color: iconColor),
+										child: _buildAppIcon(app.icon?.url, iconColor),
 									),
 									const SizedBox(width: 16),
 									Expanded(
@@ -132,6 +136,68 @@ class InstalledAppTile extends StatelessWidget {
 						},
 					),
 				),
+			),
+		);
+	}
+
+	Widget _buildAppIcon(String? url, Color iconColor) {
+		if (url == null || url.isEmpty) {
+			return Image.asset('assets/flathub.png', scale: 2.0, width: 48, height: 48);
+		}
+
+		final isSvg = url.toLowerCase().endsWith('.svg');
+
+		if (url.startsWith('file://')) {
+			final file = File.fromUri(Uri.parse(url));
+			if (isSvg) {
+				return SvgPicture.file(
+					file,
+					width: 48,
+					height: 48,
+					fit: BoxFit.contain,
+					placeholderBuilder: (context) => Icon(
+						Icons.image_outlined,
+						size: 32,
+						color: iconColor,
+					),
+				);
+			}
+
+			return Image.file(
+				file,
+				width: 48,
+				height: 48,
+				errorBuilder: (context, error, stackTrace) => Icon(
+					Icons.nearby_error,
+					size: 48,
+					color: iconColor,
+				),
+			);
+		}
+
+		if (isSvg) {
+			return SvgPicture.network(
+				url,
+				width: 48,
+				height: 48,
+				fit: BoxFit.contain,
+				placeholderBuilder: (context) => Icon(
+					Icons.image_outlined,
+					size: 32,
+					color: iconColor,
+				),
+			);
+		}
+
+		return Image.network(
+			url,
+			scale: app.icon?.scale?.toDouble() ?? 2.0,
+			width: 48,
+			height: 48,
+			errorBuilder: (context, error, stackTrace) => Icon(
+				Icons.nearby_error,
+				size: 48,
+				color: iconColor,
 			),
 		);
 	}

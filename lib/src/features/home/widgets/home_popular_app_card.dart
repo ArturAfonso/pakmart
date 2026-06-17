@@ -1,12 +1,12 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
-import 'package:pakmart/src/features/categories/models/categories_model.dart';
+import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
-class CompactAppCard extends StatelessWidget {
-  const CompactAppCard({super.key, 
+class HomePopularAppCard extends StatelessWidget {
+  const HomePopularAppCard({
+    super.key,
     required this.app,
     required this.titleColor,
     required this.secondaryColor,
@@ -15,7 +15,7 @@ class CompactAppCard extends StatelessWidget {
     required this.isDark,
   });
 
-  final CategoryAppData app;
+  final HomePopularAppData app;
   final Color titleColor;
   final Color secondaryColor;
   final Color surfaceColor;
@@ -27,10 +27,7 @@ class CompactAppCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => context.pushNamed(
-          AppRoutes.APP_INFO,
-          pathParameters: {AppRoutes.appIdParam: app.id},
-        ),
+        onTap: () => context.pushNamed(AppRoutes.APP_INFO, pathParameters: {AppRoutes.appIdParam: app.appId}),
         borderRadius: BorderRadius.circular(22),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -45,13 +42,22 @@ class CompactAppCard extends StatelessWidget {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: app.iconBackground,
+                  color: app.iconUrl == null
+                      ? (isDark ? const Color(0xFF2A2D40) : const Color(0xFFE8F3FF))
+                      : app.isMobileFriendly == true
+                          ? const Color(0xFFF2F7EA)
+                          : const Color(0xFFF0F0F0),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
-                  app.icon,
-                  size: 26,
-                  color: isDark ? AppColors.darkBackground : AppColors.textPrimary,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: app.iconUrl == null
+                      ? Icon(Icons.apps_rounded, size: 26, color: titleColor)
+                      : Image.network(
+                          app.iconUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(Icons.apps_rounded, size: 26, color: titleColor),
+                        ),
                 ),
               ),
               const SizedBox(width: 14),
@@ -66,17 +72,21 @@ class CompactAppCard extends StatelessWidget {
                       children: [
                         Text(
                           app.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 color: titleColor,
                                 fontWeight: FontWeight.w700,
                               ),
                         ),
-                        if (app.verified)
-                          const Icon(Icons.verified_outlined, size: 14, color: AppColors.accent),
+                        if (app.verified) const Icon(Icons.verified_outlined, size: 14, color: AppColors.accent),
                       ],
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      app.publisher,
+                      app.developerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor),
                     ),
                     const SizedBox(height: 4),
@@ -85,18 +95,15 @@ class CompactAppCard extends StatelessWidget {
                         const Icon(Icons.star_rounded, size: 15, color: AppColors.accent),
                         const SizedBox(width: 4),
                         Text(
-                          app.rating.toStringAsFixed(1),
+                          _metricText(app),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: titleColor),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          '·',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor),
-                        ),
+                        Text('·', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor)),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            app.categoryLabel,
+                            app.mainCategory ?? 'Geral',
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor),
                           ),
@@ -111,5 +118,32 @@ class CompactAppCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _metricText(HomePopularAppData app) {
+    final installs = app.installsLastMonth;
+    if (installs == null) {
+      return 'sem dados';
+    }
+
+    return _formatNumber(installs);
+  }
+
+  String _formatNumber(int value) {
+    final digits = value.toString();
+    if (digits.length <= 3) {
+      return digits;
+    }
+
+    final buffer = StringBuffer();
+    for (var index = 0; index < digits.length; index++) {
+      final reverseIndex = digits.length - index;
+      buffer.write(digits[index]);
+      if (reverseIndex > 1 && reverseIndex % 3 == 1) {
+        buffer.write('.');
+      }
+    }
+
+    return buffer.toString();
   }
 }

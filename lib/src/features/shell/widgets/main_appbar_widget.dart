@@ -28,8 +28,22 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Text('Pakmart', style: AppTextStyles.titleLargeItalic.copyWith(color: AppColors.accent)),
-          const SizedBox(width: 24),
+        /*    Container(
+            child: Column(
+              children: [
+               
+                Row(
+                  children: [
+                     Text('Pak', style: AppTextStyles.titleSmallItalic.copyWith(color: AppColors.accent)),
+                              Text('mart', style: AppTextStyles.titleSmallItalic.copyWith(color: const Color.fromARGB(255, 157, 107, 68))),
+                  ],
+                ),
+              ],
+            ),
+          ),  */
+          // Image.asset('assets/icons/logo-custom.png', width: 80, height: 80),
+           Text('Pakmart', style: AppTextStyles.titleMediumItalic.copyWith(color: AppColors.accent)),
+           const SizedBox(width: 24),
           Flexible(
             child: SingleChildScrollView(
                scrollDirection: Axis.horizontal,

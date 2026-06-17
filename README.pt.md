@@ -17,6 +17,16 @@ Há planos para expandir o suporte, permitindo o gerenciamento de outros tipos d
 - Suporte inicial para Flatpak
 - Foco em multiplataforma Linux Desktop
 
+## Release Linux
+
+Gerar a build release:
+
+```bash
+flutter build linux --release
+```
+
+Instalar localmente a release atual com launcher e ícone no sistema:
+
 ---
 Para saber mais sobre Flutter:
 

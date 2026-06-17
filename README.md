@@ -20,6 +20,14 @@ There are plans to expand support, allowing the management of other types of pac
 - Initial support for Flatpak
 - Focus on Linux Desktop multiplatform
 
+## Linux Release
+
+Build a release bundle:
+
+```bash
+flutter build linux --release
+```
+
 ---
 To learn more about Flutter:
 
