@@ -20,6 +20,19 @@ There are plans to expand support, allowing the management of other types of pac
 - Initial support for Flatpak
 - Focus on Linux Desktop multiplatform
 
+## Screenshots
+
+<table>
+	<tr>
+		<td><img src="assets/images/screenshot%201.png" alt="Pakmart in light theme" width="100%"></td>
+		<td><img src="assets/images/Screenshot%20%202.png" alt="Pakmart in dark theme" width="100%"></td>
+	</tr>
+	<tr>
+		<td><img src="assets/images/Screenshot%20%203.png" alt="Pakmart categories screen" width="100%"></td>
+		<td><img src="assets/images/Screenshot%20%204.png" alt="Pakmart details screen" width="100%"></td>
+	</tr>
+</table>
+
 ## Linux Release
 
 Build a release bundle:
