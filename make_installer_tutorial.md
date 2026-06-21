@@ -331,7 +331,7 @@ pkgdesc="Instale e gerencie aplicativos Flatpak"
 arch=('x86_64')
 url='https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>'
 license=('GPL-3.0-or-later')
-depends=('gtk3' 'glib2' 'libblkid' 'xz' 'gcc-libs' 'hicolor-icon-theme')
+depends=('gtk3' 'glib2' 'util-linux-libs' 'xz' 'gcc-libs' 'hicolor-icon-theme')
 makedepends=('base-devel')
 source=("$pkgname::git+file:///home/art/FlutterProjects/pakmart")
 sha256sums=('SKIP')
@@ -367,6 +367,7 @@ package() {
 	install -Dm644 linux/br.com.arturafonso.pakmart.metainfo.xml \
 		"$pkgdir/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml"
 
+	install -dm755 "$pkgdir/usr/share/applications"
 	cat > "$pkgdir/usr/share/applications/br.com.arturafonso.pakmart.desktop" <<'EOF'
 [Desktop Entry]
 Name=Pakmart
@@ -385,6 +386,7 @@ EOF
 Observações importantes:
 
 - O campo `license=('GPL-3.0-or-later')` informa ao ecossistema Arch que o projeto usa GPL-3.0-or-later.
+- No Arch, não existe pacote chamado `libblkid`; a biblioteca é fornecida por `util-linux-libs`, então mantenha `util-linux-libs` em `depends`.
 - O `source` acima é só um exemplo local; ele serve apenas para o `makepkg` buscar o código na hora da build e não vai parar no pacote final.
 - O arquivo `.desktop` do pacote deve ser criado no `package()` com o caminho final do sistema, como no exemplo acima.
 - Não copie `linux/runner/pakmart.desktop.in` direto para o pacote, porque ele é um template e não o arquivo final que o sistema vai usar.

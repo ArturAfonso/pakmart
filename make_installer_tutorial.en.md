@@ -335,7 +335,7 @@ pkgdesc="Install and manage Flatpak applications"
 arch=('x86_64')
 url='https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>'
 license=('GPL-3.0-or-later')
-depends=('gtk3' 'glib2' 'libblkid' 'xz' 'gcc-libs' 'hicolor-icon-theme')
+depends=('gtk3' 'glib2' 'util-linux-libs' 'xz' 'gcc-libs' 'hicolor-icon-theme')
 makedepends=('base-devel')
 source=("$pkgname::git+file:///home/art/FlutterProjects/pakmart")
 sha256sums=('SKIP')
@@ -371,6 +371,7 @@ package() {
 	install -Dm644 linux/br.com.arturafonso.pakmart.metainfo.xml \
 		"$pkgdir/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml"
 
+	install -dm755 "$pkgdir/usr/share/applications"
 	cat > "$pkgdir/usr/share/applications/br.com.arturafonso.pakmart.desktop" <<'EOF'
 [Desktop Entry]
 Name=Pakmart
@@ -389,6 +390,7 @@ EOF
 Important notes:
 
 - The `license=('GPL-3.0-or-later')` field tells the Arch ecosystem that the project uses GPL-3.0-or-later.
+- On Arch, there is no package named `libblkid`; the library is provided by `util-linux-libs`, so keep `util-linux-libs` in `depends`.
 - The `source` above is just a local example; you can point it to a clean clone, a tarball, or a remote repository.
 - The package `.desktop` file must be created with the final system path, just like in the Debian flow.
 - Do not copy `linux/runner/pakmart.desktop.in` directly into the package, because it is a template and not the final file that the system should use.
