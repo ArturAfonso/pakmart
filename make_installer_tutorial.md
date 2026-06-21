@@ -71,6 +71,8 @@ mkdir -p pkg-deb/DEBIAN
 mkdir -p pkg-deb/opt/pakmart
 mkdir -p pkg-deb/usr/share/applications
 mkdir -p pkg-deb/usr/share/icons/hicolor/256x256/apps
+mkdir -p pkg-deb/usr/share/doc/pakmart
+mkdir -p pkg-deb/usr/share/metainfo
 ```
 
 Essa pasta será a raiz do pacote Debian.
@@ -93,7 +95,27 @@ Use o ícone do projeto e renomeie com o Application ID do app:
 cp assets/icons/logo-custom.png pkg-deb/usr/share/icons/hicolor/256x256/apps/br.com.arturafonso.pakmart.png
 ```
 
-## 9. Criar o arquivo .desktop do pacote
+## 9. Copiar a licença e os avisos de terceiros
+
+Copie os arquivos de licença do projeto para o pacote:
+
+```bash
+cp LICENSE pkg-deb/usr/share/doc/pakmart/
+cp THIRD_PARTY_NOTICES.md pkg-deb/usr/share/doc/pakmart/
+cp -r LICENSES pkg-deb/usr/share/doc/pakmart/
+```
+
+## 10. Copiar o arquivo AppStream metainfo
+
+Copie também o arquivo AppStream do projeto para o local padrão do sistema:
+
+```bash
+cp linux/br.com.arturafonso.pakmart.metainfo.xml pkg-deb/usr/share/metainfo/
+```
+
+Se você estiver criando um fork ou personalizando este projeto, ajuste esse arquivo antes de empacotar para refletir seu próprio nome, contato, URLs e licença do projeto.
+
+## 11. Criar o arquivo .desktop do pacote
 
 Crie este arquivo:
 
@@ -122,7 +144,7 @@ Observações importantes:
 - `Icon` usa o nome do arquivo instalado no tema de ícones do sistema.
 - O arquivo do pacote não deve depender de caminhos absolutos da sua máquina.
 
-## 10. Criar o arquivo de controle do Debian
+## 12. Criar o arquivo de controle do Debian
 
 Crie o arquivo `pkg-deb/DEBIAN/control` com este conteúdo:
 
@@ -139,15 +161,17 @@ Description: Instale e gerencie aplicativos Flatpak com o Pakmart.
 
 Se o seu projeto usar outra versão, ajuste o campo `Version` de acordo com o release que você quer publicar.
 
-## 11. Ajustar permissões mínimas do pacote
+## 13. Ajustar permissões mínimas do pacote
 
 ```bash
 chmod 755 pkg-deb/DEBIAN
 chmod 644 pkg-deb/DEBIAN/control
 chmod 644 pkg-deb/usr/share/applications/br.com.arturafonso.pakmart.desktop
+chmod 644 pkg-deb/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml
+find pkg-deb/usr/share/doc/pakmart -type f -exec chmod 644 {} \;
 ```
 
-## 12. Gerar o arquivo .deb
+## 14. Gerar o arquivo .deb
 
 ```bash
 dpkg-deb --build pkg-deb pakmart_1.0.0_amd64.deb
@@ -155,7 +179,7 @@ dpkg-deb --build pkg-deb pakmart_1.0.0_amd64.deb
 
 O arquivo final ficará no diretório atual.
 
-## 13. Testar o pacote gerado
+## 15. Testar o pacote gerado
 
 Antes de publicar no GitHub, teste localmente:
 
@@ -176,7 +200,7 @@ Para remover:
 sudo apt remove pakmart
 ```
 
-## 14. Conferir se o .deb não herdou caminhos da sua máquina
+## 16. Conferir se o .deb não herdou caminhos da sua máquina
 
 Se quiser validar o conteúdo do pacote sem instalar, você pode extrair em uma pasta temporária:
 
@@ -190,6 +214,18 @@ Depois confira o desktop file extraído:
 cat /tmp/pakmart-deb/usr/share/applications/br.com.arturafonso.pakmart.desktop
 ```
 
+E confira também se os arquivos de licença foram incluídos:
+
+```bash
+find /tmp/pakmart-deb/usr/share/doc/pakmart -maxdepth 2 -type f
+```
+
+Confira ainda se o metainfo AppStream foi incluído:
+
+```bash
+ls /tmp/pakmart-deb/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml
+```
+
 O esperado é algo como:
 
 ```ini
@@ -197,7 +233,7 @@ Exec=/opt/pakmart/pakmart
 Icon=br.com.arturafonso.pakmart
 ```
 
-## 15. Publicar no GitHub Releases
+## 17. Publicar no GitHub Releases
 
 
 
@@ -207,12 +243,17 @@ Esse processo é o mais seguro para evitar que o pacote final carregue caminhos 
 
 ---
 
+
+
+
+
 # Pakmart: tutorial para criar release para baseados em Arch
 
 Esta parte do guia cobre a geração do pacote para distribuições baseadas em Arch Linux, como Arch, EndeavourOS, Manjaro e derivadas.
 Aqui o fluxo muda: em vez de criar um `.deb`, você vai gerar um pacote Arch com `PKGBUILD` e `makepkg`, que resulta em um arquivo `.pkg.tar.zst`.
 
 O objetivo continua o mesmo: montar uma área limpa de empacotamento para não levar caminhos absolutos do ambiente de desenvolvimento para o pacote final.
+No caso do Arch, o ponto mais importante é não reutilizar o `.desktop` gerado pela build do Flutter sem ajuste, porque ele costuma sair com caminhos absolutos da pasta de compilação.
 
 ## O que você vai precisar
 
@@ -289,7 +330,7 @@ pkgrel=1
 pkgdesc="Instale e gerencie aplicativos Flatpak"
 arch=('x86_64')
 url='https://github.com/<SEU_USUARIO>/<SEU_REPOSITORIO>'
-license=('custom')
+license=('GPL-3.0-or-later')
 depends=('gtk3' 'glib2' 'libblkid' 'xz' 'gcc-libs' 'hicolor-icon-theme')
 makedepends=('base-devel')
 source=("$pkgname::git+file:///home/art/FlutterProjects/pakmart")
@@ -314,20 +355,46 @@ package() {
 	install -Dm644 assets/icons/logo-custom.png \
 		"$pkgdir/usr/share/icons/hicolor/256x256/apps/br.com.arturafonso.pakmart.png"
 
-	install -Dm644 linux/runner/pakmart.desktop.in \
-		"$pkgdir/usr/share/applications/br.com.arturafonso.pakmart.desktop"
+	install -Dm644 LICENSE \
+		"$pkgdir/usr/share/licenses/pakmart/LICENSE"
+
+	install -Dm644 THIRD_PARTY_NOTICES.md \
+		"$pkgdir/usr/share/doc/pakmart/THIRD_PARTY_NOTICES.md"
+
+	install -Dm644 LICENSES/OFL-1.1.txt \
+		"$pkgdir/usr/share/doc/pakmart/licenses/OFL-1.1.txt"
+
+	install -Dm644 linux/br.com.arturafonso.pakmart.metainfo.xml \
+		"$pkgdir/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml"
+
+	cat > "$pkgdir/usr/share/applications/br.com.arturafonso.pakmart.desktop" <<'EOF'
+[Desktop Entry]
+Name=Pakmart
+Comment=Explore e gerencie aplicativos Flatpak
+Exec=/opt/pakmart/pakmart
+Icon=br.com.arturafonso.pakmart
+Terminal=false
+Type=Application
+Categories=Utility;
+StartupNotify=true
+StartupWMClass=br.com.arturafonso.pakmart
+EOF
 }
 ```
 
 Observações importantes:
 
-- O `source` acima é só um exemplo local; você pode apontar para um clone limpo, um tarball ou um repositório remoto.
-- Em pacotes finais, o arquivo `.desktop` deve ser ajustado para usar o caminho final do sistema, assim como no fluxo do Debian.
-- Se você preferir, pode criar o `.desktop` diretamente dentro do `package()` em vez de copiar o template bruto.
+- O campo `license=('GPL-3.0-or-later')` informa ao ecossistema Arch que o projeto usa GPL-3.0-or-later.
+- O `source` acima é só um exemplo local; ele serve apenas para o `makepkg` buscar o código na hora da build e não vai parar no pacote final.
+- O arquivo `.desktop` do pacote deve ser criado no `package()` com o caminho final do sistema, como no exemplo acima.
+- Não copie `linux/runner/pakmart.desktop.in` direto para o pacote, porque ele é um template e não o arquivo final que o sistema vai usar.
+- Instale também a licença principal em `/usr/share/licenses/pakmart/` e os avisos de terceiros em `/usr/share/doc/pakmart/`.
+- Instale também o arquivo AppStream em `/usr/share/metainfo/`.
+- Se você estiver adaptando este projeto para outro app, personalize o arquivo `linux/br.com.arturafonso.pakmart.metainfo.xml` antes de gerar o pacote.
 
-## 8. Criar o arquivo .desktop para Arch
+## 8. Conferir o arquivo .desktop para Arch
 
-O conteúdo final deve ser semelhante a este:
+Se você quiser manter esse arquivo separado do `PKGBUILD`, o conteúdo final deve ser semelhante a este:
 
 ```ini
 [Desktop Entry]
@@ -385,6 +452,18 @@ Você pode extrair o pacote para validar o desktop file:
 mkdir -p /tmp/pakmart-arch
 bsdtar -xf pakmart-1.0.0-1-x86_64.pkg.tar.zst -C /tmp/pakmart-arch
 cat /tmp/pakmart-arch/usr/share/applications/br.com.arturafonso.pakmart.desktop
+```
+
+Depois confira também se os arquivos de licença foram incluídos:
+
+```bash
+find /tmp/pakmart-arch/usr/share -path '*/pakmart*' -type f
+```
+
+E confira se o arquivo AppStream foi incluído:
+
+```bash
+ls /tmp/pakmart-arch/usr/share/metainfo/br.com.arturafonso.pakmart.metainfo.xml
 ```
 
 O esperado é algo como:

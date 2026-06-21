@@ -41,6 +41,17 @@ Build a release bundle:
 flutter build linux --release
 ```
 
+The generated Linux bundle installs the project license and third-party notices under `share/doc/pakmart/`.
+It also installs the AppStream metainfo file under `share/metainfo/`.
+
+## License
+
+Pakmart is licensed under GPL-3.0-or-later.
+
+The project's source code, original images, icons, and other project-owned assets are distributed under GPL-3.0-or-later.
+
+The bundled Avrile Serif font in `assets/fonts/Avrile-Serif-Bold-Italic/` is distributed under the SIL Open Font License 1.1. See `THIRD_PARTY_NOTICES.md` and `LICENSES/OFL-1.1.txt` for details.
+
 ---
 To learn more about Flutter:
 

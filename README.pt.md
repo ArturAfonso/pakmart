@@ -38,6 +38,17 @@ Gerar a build release:
 flutter build linux --release
 ```
 
+O bundle Linux gerado instala a licença do projeto e os avisos de terceiros em `share/doc/pakmart/`.
+Ele também instala o arquivo AppStream metainfo em `share/metainfo/`.
+
+## Licença
+
+O Pakmart é licenciado sob GPL-3.0-or-later.
+
+O código-fonte do projeto, as imagens originais, os ícones e os demais assets próprios do projeto são distribuídos sob GPL-3.0-or-later.
+
+A fonte Avrile Serif incluída em `assets/fonts/Avrile-Serif-Bold-Italic/` é distribuída sob a SIL Open Font License 1.1. Consulte `THIRD_PARTY_NOTICES.md` e `LICENSES/OFL-1.1.txt` para os detalhes.
+
 Instalar localmente a release atual com launcher e ícone no sistema:
 
 ---

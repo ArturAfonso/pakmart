@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>br.com.arturafonso.pakmart</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Pakmart</name>
+  <summary>Explore e gerencie aplicativos Flatpak</summary>
+  <description>
+    <p>Pakmart is a Linux desktop app store built with Flutter and focused on installing, updating, and removing Flatpak applications through a modern, centralized interface.</p>
+    <p>The project is community-driven, open source, and designed to keep software distribution simple while remaining friendly to Linux desktop users.</p>
+  </description>
+  <developer_name>Artur Afonso</developer_name>
+  <launchable type="desktop-id">br.com.arturafonso.pakmart.desktop</launchable>
+  <url type="homepage">https://github.com/ArturAfonso/pakmart</url>
+  <url type="bugtracker">https://github.com/ArturAfonso/pakmart/issues</url>
+  <url type="vcs-browser">https://github.com/ArturAfonso/pakmart</url>
+  <url type="contact">mailto:artafonsodev@gmail.com</url>
+  <content_rating type="oars-1.1"/>
+</component>

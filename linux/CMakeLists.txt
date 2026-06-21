@@ -90,6 +90,7 @@ install(CODE "
 
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(PAKMART_DOC_DIR "${CMAKE_INSTALL_PREFIX}/share/doc/${BINARY_NAME}")
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
@@ -134,9 +135,23 @@ install(FILES "${PROJECT_BINARY_DIR}/pakmart.desktop"
   RENAME "${APPLICATION_ID}.desktop"
   COMPONENT Runtime)
 
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/${APPLICATION_ID}.metainfo.xml"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/share/metainfo"
+  COMPONENT Runtime)
+
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../assets/icons/logo-custom.png"
   DESTINATION "${CMAKE_INSTALL_PREFIX}/share/icons/hicolor/256x256/apps"
   RENAME "${APPLICATION_ID}.png"
+  COMPONENT Runtime)
+
+install(FILES
+  "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../THIRD_PARTY_NOTICES.md"
+  DESTINATION "${PAKMART_DOC_DIR}"
+  COMPONENT Runtime)
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSES/OFL-1.1.txt"
+  DESTINATION "${PAKMART_DOC_DIR}/licenses"
   COMPONENT Runtime)
 
 # Install the AOT library on non-Debug builds only.
