@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
@@ -23,8 +24,11 @@ class AppHeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradientStart = (app.heroGradientStart ?? app.iconBackground).withValues(alpha: isDark ? 0.2 : 0.16);
-    final gradientEnd = (app.heroGradientEnd ?? surfaceColor).withValues(alpha: isDark ? 0.12 : 0.92);
+    final gradientStart = (app.heroGradientStart ?? app.iconBackground)
+        .withValues(alpha: isDark ? 0.2 : 0.16);
+    final gradientEnd = (app.heroGradientEnd ?? surfaceColor).withValues(
+      alpha: isDark ? 0.12 : 0.92,
+    );
 
     return Container(
       height: 250,
@@ -45,15 +49,26 @@ class AppHeroSection extends StatelessWidget {
           final icon = Container(
             width: 134,
             height: 134,
-            decoration: BoxDecoration(color: app.iconBackground, borderRadius: BorderRadius.circular(28)),
-            child: _AppIconArt(imageUrl: app.iconUrl, fallbackIcon: app.fallbackIcon, isDark: isDark),
+            decoration: BoxDecoration(
+              color: app.iconBackground,
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: _AppIconArt(
+              imageUrl: app.iconUrl,
+              fallbackIcon: app.fallbackIcon,
+              isDark: isDark,
+            ),
           );
 
-          final text = _AppDetailsText(app: app, titleColor: titleColor, secondaryColor: secondaryColor);
+          final text = _AppDetailsText(
+            app: app,
+            titleColor: titleColor,
+            secondaryColor: secondaryColor,
+          );
 
           if (compact) {
             return Column(
-             crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [icon, const SizedBox(height: 18), text],
             );
           }
@@ -73,7 +88,11 @@ class AppHeroSection extends StatelessWidget {
 }
 
 class _AppDetailsText extends StatelessWidget {
-  const _AppDetailsText({required this.app, required this.titleColor, required this.secondaryColor});
+  const _AppDetailsText({
+    required this.app,
+    required this.titleColor,
+    required this.secondaryColor,
+  });
 
   final AppDetailData app;
   final Color titleColor;
@@ -92,11 +111,18 @@ class _AppDetailsText extends StatelessWidget {
           children: [
             Text(
               app.name,
-              style: AppTextStyles.titleLargeNormal.copyWith(color: titleColor, fontSize: 42, height: 1.02),
+              style: AppTextStyles.titleLargeNormal.copyWith(
+                color: titleColor,
+                fontSize: 42,
+                height: 1.02,
+              ),
             ),
             if (app.verified)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(999),
@@ -104,10 +130,14 @@ class _AppDetailsText extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.verified_outlined, size: 14, color: Colors.white),
+                    const Icon(
+                      Icons.verified_outlined,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                     const SizedBox(width: 4),
                     Text(
-                      'VERIFICADO',
+                      context.l10n.verified,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -127,14 +157,25 @@ class _AppDetailsText extends StatelessWidget {
           children: [
             Text(
               app.developerName,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: titleColor,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            if (app.categoryLabel != null) _TagBadge(label: app.categoryLabel!, color: secondaryColor),
-            if (app.version != null) _TagBadge(label: 'v${app.version}', color: secondaryColor),
+            if (app.categoryLabel != null)
+              _TagBadge(label: app.categoryLabel!, color: secondaryColor),
+            if (app.version != null)
+              _TagBadge(label: 'v${app.version}', color: secondaryColor),
           ],
         ),
         const SizedBox(height: 14),
-        Text('"${app.tagline}"', style: AppTextStyles.bodyLargeItalic.copyWith(color: secondaryColor, height: 1.4)),
+        Text(
+          '"${app.tagline}"',
+          style: AppTextStyles.bodyLargeItalic.copyWith(
+            color: secondaryColor,
+            height: 1.4,
+          ),
+        ),
       ],
     );
   }
@@ -150,17 +191,27 @@ class _TagBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+      ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w700),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: color,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
 }
 
 class _AppIconArt extends StatelessWidget {
-  const _AppIconArt({required this.imageUrl, required this.fallbackIcon, required this.isDark});
+  const _AppIconArt({
+    required this.imageUrl,
+    required this.fallbackIcon,
+    required this.isDark,
+  });
 
   final String? imageUrl;
   final IconData? fallbackIcon;
@@ -188,7 +239,8 @@ class _AppIconArt extends StatelessWidget {
                   strokeWidth: 2,
                   value: progress.expectedTotalBytes == null
                       ? null
-                      : progress.cumulativeBytesLoaded / progress.expectedTotalBytes!,
+                      : progress.cumulativeBytesLoaded /
+                            progress.expectedTotalBytes!,
                 ),
               ),
             );

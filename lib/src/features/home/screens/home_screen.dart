@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/features/categories/bloc/categories_bloc.dart';
@@ -13,7 +14,6 @@ import 'package:pakmart/src/features/home/bloc/popular_apps_state.dart';
 import 'package:pakmart/src/features/home/widgets/categoryshortcutcard_wieget.dart';
 import 'package:pakmart/src/features/home/widgets/home_carrousel_widget.dart';
 import 'package:pakmart/src/features/home/widgets/home_popular_app_card.dart';
-import 'package:pakmart/src/features/home/widgets/info_promo_card.dart';
 import 'package:pakmart/src/features/home/widgets/responsive_gride_widget.dart';
 import 'package:pakmart/src/features/home/widgets/section_header.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
@@ -38,11 +38,23 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _homePopularBloc = HomePopularBloc(sl(), collection: HomePopularCollection.popular, perPage: 4);
+    _homePopularBloc = HomePopularBloc(
+      sl(),
+      collection: HomePopularCollection.popular,
+      perPage: 4,
+    );
     _homePopularBloc.add(const HomePopularRequested());
-    _homeTrendingBloc = HomePopularBloc(sl(), collection: HomePopularCollection.trending, perPage: 6);
+    _homeTrendingBloc = HomePopularBloc(
+      sl(),
+      collection: HomePopularCollection.trending,
+      perPage: 6,
+    );
     _homeTrendingBloc.add(const HomePopularRequested());
-    _homeFavoritesBloc = HomePopularBloc(sl(), collection: HomePopularCollection.favorites, perPage: 6);
+    _homeFavoritesBloc = HomePopularBloc(
+      sl(),
+      collection: HomePopularCollection.favorites,
+      perPage: 6,
+    );
     _homeFavoritesBloc.add(const HomePopularRequested());
     _homeCategoriesBloc = CategoriesBloc(sl());
     _homeCategoriesBloc.add(const CategoriesRequested(limit: 8));
@@ -62,8 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -80,14 +96,21 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 BlocBuilder<HomeFeaturedBloc, HomeFeaturedState>(
                   builder: (context, state) {
-                    if (state.status == HomeFeaturedStatus.loading && state.apps.isEmpty) {
-                      return const SizedBox(height: 430, child: Center(child: CircularProgressIndicator()));
+                    if (state.status == HomeFeaturedStatus.loading &&
+                        state.apps.isEmpty) {
+                      return const SizedBox(
+                        height: 430,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
                     }
 
-                    if (state.status == HomeFeaturedStatus.failure || state.apps.isEmpty) {
+                    if (state.status == HomeFeaturedStatus.failure ||
+                        state.apps.isEmpty) {
                       return _HomeInlineError(
-                        message: state.errorMessage ?? 'Não conseguimos carregar os destaques agora.',
-                        onRetry: () => context.read<HomeFeaturedBloc>().add(const HomeFeaturedRequested()),
+                        message: context.l10n.featuredFailure,
+                        onRetry: () => context.read<HomeFeaturedBloc>().add(
+                          const HomeFeaturedRequested(),
+                        ),
                         titleColor: titleColor,
                         secondaryColor: secondaryColor,
                         surfaceColor: surfaceColor,
@@ -99,7 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       apps: state.apps,
                       currentPage: _currentPage,
                       controller: _pageController,
-                      onPageChanged: (page) => setState(() => _currentPage = page),
+                      onPageChanged: (page) =>
+                          setState(() => _currentPage = page),
                       onOpenExternal: _openFlathubApp,
                       autoAdvanceInterval: const Duration(seconds: 10),
                     );
@@ -107,9 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 46),
                 SectionHeader(
-                  title: 'Mais populares',
-                  subtitle: 'Os preferidos da comunidade',
-                  actionLabel: 'Ver tudo',
+                  title: context.l10n.popularTitle,
+                  subtitle: context.l10n.popularSubtitle,
+                  actionLabel: context.l10n.seeAll,
                   onAction: () => context.goNamed(AppRoutes.POPULAR_APPS),
                   titleColor: titleColor,
                   secondaryColor: secondaryColor,
@@ -119,17 +143,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: _homePopularBloc,
                   child: BlocBuilder<HomePopularBloc, PopularAppsState>(
                     builder: (context, state) {
-                      if (state.status == PopularAppsStatus.loading && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.loading &&
+                          state.apps.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
-                      if (state.status == PopularAppsStatus.failure && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.failure &&
+                          state.apps.isEmpty) {
                         return _HomeInlineError(
-                          message: state.errorMessage ?? 'Não conseguimos carregar os apps populares agora.',
-                          onRetry: () => context.read<HomePopularBloc>().add(const HomePopularRetried()),
+                          message: context.l10n.popularFailure,
+                          onRetry: () => context.read<HomePopularBloc>().add(
+                            const HomePopularRetried(),
+                          ),
                           titleColor: titleColor,
                           secondaryColor: secondaryColor,
                           surfaceColor: surfaceColor,
@@ -158,9 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 48),
                 SectionHeader(
-                  title: 'Navegar por categorias',
-                  subtitle: 'Encontre por área de interesse',
-                  actionLabel: 'Ver tudo',
+                  title: context.l10n.browseCategoriesTitle,
+                  subtitle: context.l10n.browseCategoriesSubtitle,
+                  actionLabel: context.l10n.seeAll,
                   onAction: () => context.goNamed(AppRoutes.CATEGORIES),
                   titleColor: titleColor,
                   secondaryColor: secondaryColor,
@@ -170,17 +198,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: _homeCategoriesBloc,
                   child: BlocBuilder<CategoriesBloc, CategoriesState>(
                     builder: (context, state) {
-                      if (state.status == CategoriesStatus.loading && state.categories.isEmpty) {
+                      if (state.status == CategoriesStatus.loading &&
+                          state.categories.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
-                      if (state.status == CategoriesStatus.failure && state.categories.isEmpty) {
+                      if (state.status == CategoriesStatus.failure &&
+                          state.categories.isEmpty) {
                         return _HomeInlineError(
-                          message: state.errorMessage ?? 'Não conseguimos carregar as categorias agora.',
-                          onRetry: () => context.read<CategoriesBloc>().add(const CategoriesRetried()),
+                          message: context.l10n.categoriesFailure,
+                          onRetry: () => context.read<CategoriesBloc>().add(
+                            const CategoriesRetried(),
+                          ),
                           titleColor: titleColor,
                           secondaryColor: secondaryColor,
                           surfaceColor: surfaceColor,
@@ -207,8 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 48),
                 SectionHeader(
-                  title: 'Em destaque esta semana',
-                  subtitle: 'Aplicativos em ascensão',
+                  title: context.l10n.trendingTitle,
+                  subtitle: context.l10n.trendingSubtitle,
                   titleColor: titleColor,
                   secondaryColor: secondaryColor,
                 ),
@@ -217,17 +249,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: _homeTrendingBloc,
                   child: BlocBuilder<HomePopularBloc, PopularAppsState>(
                     builder: (context, state) {
-                      if (state.status == PopularAppsStatus.loading && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.loading &&
+                          state.apps.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
-                      if (state.status == PopularAppsStatus.failure && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.failure &&
+                          state.apps.isEmpty) {
                         return _HomeInlineError(
-                          message: state.errorMessage ?? 'Não conseguimos carregar os apps em destaque agora.',
-                          onRetry: () => context.read<HomePopularBloc>().add(const HomePopularRetried()),
+                          message: context.l10n.trendingFailure,
+                          onRetry: () => context.read<HomePopularBloc>().add(
+                            const HomePopularRetried(),
+                          ),
                           titleColor: titleColor,
                           secondaryColor: secondaryColor,
                           surfaceColor: surfaceColor,
@@ -255,8 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 52),
                 SectionHeader(
-                  title: 'Mais favoritados',
-                  subtitle: 'Aplicativos salvos pela comunidade',
+                  title: context.l10n.favoritesTitle,
+                  subtitle: context.l10n.favoritesSubtitle,
                   titleColor: titleColor,
                   secondaryColor: secondaryColor,
                 ),
@@ -265,17 +301,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: _homeFavoritesBloc,
                   child: BlocBuilder<HomePopularBloc, PopularAppsState>(
                     builder: (context, state) {
-                      if (state.status == PopularAppsStatus.loading && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.loading &&
+                          state.apps.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
                           child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
-                      if (state.status == PopularAppsStatus.failure && state.apps.isEmpty) {
+                      if (state.status == PopularAppsStatus.failure &&
+                          state.apps.isEmpty) {
                         return _HomeInlineError(
-                          message: state.errorMessage ?? 'Não conseguimos carregar os favoritados agora.',
-                          onRetry: () => context.read<HomePopularBloc>().add(const HomePopularRetried()),
+                          message: context.l10n.favoritesFailure,
+                          onRetry: () => context.read<HomePopularBloc>().add(
+                            const HomePopularRetried(),
+                          ),
                           titleColor: titleColor,
                           secondaryColor: secondaryColor,
                           surfaceColor: surfaceColor,
@@ -302,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-               /*  InfoPromoCard(
+                /*  InfoPromoCard(
                   titleColor: titleColor,
                   secondaryColor: secondaryColor,
                   surfaceColor: surfaceColor,
@@ -356,13 +396,18 @@ class _HomeInlineError extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Não conseguimos carregar os populares agora.',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+                  context.l10n.loadFailureTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: titleColor,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   message,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
                 ),
               ],
             ),
@@ -371,7 +416,7 @@ class _HomeInlineError extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tentar novamente'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),

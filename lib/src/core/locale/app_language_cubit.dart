@@ -41,21 +41,22 @@ class AppLanguageState {
 }
 
 class AppLanguageCubit extends Cubit<AppLanguageState> {
-    /// Retorna o locale formatado para uso na API do Flathub.
-    /// Exemplo: pt_BR -> ptbr, en_US -> en, es_ES -> es
-    String get apiLocaleCode {
-      final code = state.localeCode.toLowerCase();
-      if (code.startsWith('pt')) {
-        // Aceita pt-br ou ptbr
-        return 'ptbr';
-      } else if (code.startsWith('en')) {
-        return 'en';
-      } else if (code.startsWith('es')) {
-        return 'es';
-      }
-      // fallback para en
+  /// Retorna o locale formatado para uso na API do Flathub.
+  /// Exemplo: pt_BR -> ptbr, en_US -> en, es_ES -> es
+  String get apiLocaleCode {
+    final code = state.localeCode.toLowerCase();
+    if (code.startsWith('pt')) {
+      // Aceita pt-br ou ptbr
+      return 'ptbr';
+    } else if (code.startsWith('en')) {
       return 'en';
+    } else if (code.startsWith('es')) {
+      return 'es';
     }
+    // fallback para en
+    return 'en';
+  }
+
   AppLanguageCubit(this._repository)
     : super(
         const AppLanguageState(
@@ -69,7 +70,10 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
 
   final AppLanguageRepository _repository;
 
-  static const supportedLocales = <Locale>[Locale('pt', 'BR'), Locale('en', 'US'), Locale('es', 'ES')];
+  static const supportedLocales = <Locale>[
+    Locale('pt', 'BR'),
+    Locale('en', 'US'),
+  ];
 
   Future<void> loadLanguage() async {
     emit(state.copyWith(isLoading: true));
@@ -78,7 +82,9 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
       state.copyWith(
         locale: _toLocale(info.localeCode),
         localeCode: info.localeCode,
-        source: info.isManual ? AppLanguageSource.manual : AppLanguageSource.system,
+        source: info.isManual
+            ? AppLanguageSource.manual
+            : AppLanguageSource.system,
         distroId: info.distroId,
         distroFamily: info.distroFamily,
         isLoading: false,
@@ -123,10 +129,10 @@ class AppLanguageCubit extends Cubit<AppLanguageState> {
     final normalized = localeCode.replaceAll('-', '_');
     final parts = normalized.split('_');
 
-    if (parts.length >= 2) {
-      return Locale(parts[0].toLowerCase(), parts[1].toUpperCase());
+    if (parts.first.toLowerCase() == 'pt') {
+      return const Locale('pt', 'BR');
     }
 
-    return Locale(parts.first.toLowerCase());
+    return const Locale('en', 'US');
   }
 }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/locale/app_language_cubit.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
-import 'package:pakmart/src/features/preferences/widgets/check_preference_tile.dart';
 import 'package:pakmart/src/features/preferences/widgets/choice_preference_tile.dart';
 import 'package:pakmart/src/features/preferences/widgets/preference_section.dart';
-import 'package:pakmart/src/features/preferences/widgets/switch_preference_tile.dart';
 import 'package:pakmart/src/features/preferences/widgets/theme_mode_card.dart';
 
 class PreferencesScreen extends StatefulWidget {
@@ -18,35 +17,15 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
-  final bool _searchInSummary = false;
-  final bool _searchInDescription = false;
-  final bool _showUnverified = true;
-  final String _selectedSource = 'flathub';
-
-  static const Map<String, String> _languageTitles = {
-    'pt_BR': 'Portugues (Brasil)',
-    'en_US': 'English (United States)',
-    'es_ES': 'Espanol (Espana)',
-  };
-
-  String _languageSubtitle(String localeCode) {
-    switch (localeCode) {
-      case 'pt_BR':
-        return 'Interface em portugues brasileiro';
-      case 'en_US':
-        return 'Interface in English';
-      case 'es_ES':
-        return 'Interfaz en espanol';
-      default:
-        return 'Idioma personalizado';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
     return SafeArea(
       top: false,
@@ -60,7 +39,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AJUSTES PESSOAIS',
+                  context.l10n.personalSettings,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     letterSpacing: 4,
                     fontWeight: FontWeight.w600,
@@ -70,7 +49,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Preferências',
+                  context.l10n.preferencesTitle,
                   style: AppTextStyles.titleLarge.copyWith(
                     color: titleColor,
                     fontSize: 54,
@@ -79,8 +58,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                const SizedBox(height: 36),
-               /*  PreferenceSection(
+                /*  const SizedBox(height: 36),
+                PreferenceSection(
                   title: 'Pesquisa',
                   description: 'O titulo do app é sempre buscado. Ative para procurar mais a fundo (mais lento).',
                   child: Column(
@@ -147,49 +126,65 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       ),
                     ],
                   ),
-                ),
+                ), */
                 const SizedBox(height: 36),
                 BlocBuilder<AppLanguageCubit, AppLanguageState>(
                   builder: (context, languageState) {
                     return PreferenceSection(
-                      title: 'Idioma do app',
-                      description:
-                          'O padrao inicial usa o idioma do sistema. Depois da primeira escolha manual, ela passa a prevalecer.',
+                      title: context.l10n.appLanguage,
+                      description: context.l10n.languageDescription,
                       child: Column(
                         children: [
                           ChoicePreferenceTile(
-                            title: 'Usar idioma do sistema',
-                            subtitle: 'Atual: ${languageState.localeCode} (${languageState.distroFamily})',
-                            selected: languageState.source == AppLanguageSource.system,
-                            onTap: () => context.read<AppLanguageCubit>().useSystemLanguage(),
+                            title: context.l10n.useSystemLanguage,
+                            subtitle: context.l10n.currentLanguage(
+                              languageState.localeCode,
+                            ),
+                            selected:
+                                languageState.source ==
+                                AppLanguageSource.system,
+                            onTap: () => context
+                                .read<AppLanguageCubit>()
+                                .useSystemLanguage(),
                           ),
                           const SizedBox(height: 12),
-                          for (final entry in _languageTitles.entries) ...[
+                          for (final localeCode in const [
+                            'pt_BR',
+                            'en_US',
+                          ]) ...[
                             ChoicePreferenceTile(
-                              title: entry.value,
-                              subtitle: _languageSubtitle(entry.key),
+                              title: localeCode == 'pt_BR'
+                                  ? context.l10n.portugueseBrazil
+                                  : context.l10n.englishUnitedStates,
+                              subtitle: localeCode == 'pt_BR'
+                                  ? context.l10n.portugueseBrazilDescription
+                                  : context.l10n.englishUnitedStatesDescription,
                               selected:
-                                  languageState.source == AppLanguageSource.manual &&
-                                  languageState.localeCode == entry.key,
-                              onTap: () => context.read<AppLanguageCubit>().setManualLanguage(entry.key),
+                                  languageState.source ==
+                                      AppLanguageSource.manual &&
+                                  languageState.localeCode == localeCode,
+                              onTap: () => context
+                                  .read<AppLanguageCubit>()
+                                  .setManualLanguage(localeCode),
                             ),
-                            if (entry.key != _languageTitles.keys.last) const SizedBox(height: 12),
+                            if (localeCode != 'en_US')
+                              const SizedBox(height: 12),
                           ],
                         ],
                       ),
                     );
                   },
                 ),
-                const SizedBox(height: 36), */
+                const SizedBox(height: 36),
                 PreferenceSection(
-                  title: 'Aparência',
-                  description: 'Tema visual da loja.',
+                  title: context.l10n.appearance,
+                  description: context.l10n.appearanceDescription,
                   child: Row(
                     children: [
                       Expanded(
                         child: ThemeModeCard(
-                          title: 'Claro',
-                          subtitle: 'Papel quente, padrão',
+                          title: context.l10n.light,
+                          subtitle: context.l10n.lightDescription,
                           selected: !isDark,
                           darkPreview: false,
                           onTap: () {
@@ -202,8 +197,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: ThemeModeCard(
-                          title: 'Escuro',
-                          subtitle: 'Tinta noturna',
+                          title: context.l10n.dark,
+                          subtitle: context.l10n.darkDescription,
                           selected: isDark,
                           darkPreview: true,
                           onTap: () {

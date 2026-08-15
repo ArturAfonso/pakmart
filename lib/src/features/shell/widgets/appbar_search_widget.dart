@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class AppBarSearchWidget extends StatefulWidget {
@@ -122,11 +123,11 @@ class _AppSearchFieldState extends State<AppBarSearchWidget> {
         onChanged: (value) => _handleChanged(context, value),
         onSubmitted: (_) => _handleSubmitted(context),
         decoration: InputDecoration(
-          hintText: 'Procurar aplicativos...',
+          hintText: context.l10n.searchAppsHint,
           prefixIcon: IconButton(
             onPressed: () => _handleSubmitted(context),
             icon: const Icon(Icons.search, size: 20),
-            tooltip: 'Buscar',
+            tooltip: context.l10n.search,
           ),
           suffixIcon: _controller.text.trim().isNotEmpty
               ? IconButton(
@@ -137,7 +138,7 @@ class _AppSearchFieldState extends State<AppBarSearchWidget> {
                     setState(() {});
                   },
                   icon: const Icon(Icons.close_rounded, size: 18),
-                  tooltip: 'Limpar',
+                  tooltip: context.l10n.clear,
                 )
               : null,
           contentPadding: const EdgeInsets.symmetric(

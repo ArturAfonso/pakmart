@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/di/injector.dart';
@@ -46,8 +47,12 @@ class _AppInfoViewState extends State<_AppInfoView> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -63,13 +68,16 @@ class _AppInfoViewState extends State<_AppInfoView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  state.errorMessage ?? 'Aplicativo nao encontrado.',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: titleColor),
+                  context.l10n.appNotFound,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: titleColor),
                 ),
                 const SizedBox(height: 12),
                 FilledButton(
-                  onPressed: () => context.read<AppInfoCubit>().load(widget.appId),
-                  child: const Text('Tentar novamente'),
+                  onPressed: () =>
+                      context.read<AppInfoCubit>().load(widget.appId),
+                  child: Text(context.l10n.retry),
                 ),
               ],
             ),
@@ -77,7 +85,10 @@ class _AppInfoViewState extends State<_AppInfoView> {
         }
 
         final detail = state.detail!;
-        final isInstalled = _isInstalled(detail, context.watch<InstalledAppsBloc>().state);
+        final isInstalled = _isInstalled(
+          detail,
+          context.watch<InstalledAppsBloc>().state,
+        );
 
         return SafeArea(
           top: false,
@@ -92,12 +103,17 @@ class _AppInfoViewState extends State<_AppInfoView> {
                   children: [
                     TextButton.icon(
                       onPressed: _handleBack,
-                      icon: Icon(Icons.arrow_back_rounded, color: secondaryColor, size: 18),
+                      icon: Icon(
+                        Icons.arrow_back_rounded,
+                        color: secondaryColor,
+                        size: 18,
+                      ),
                       label: Text(
-                        'Voltar',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.copyWith(color: secondaryColor, fontWeight: FontWeight.w600),
+                        context.l10n.back,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: secondaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -134,8 +150,12 @@ class _AppInfoViewState extends State<_AppInfoView> {
                           borderColor: borderColor,
                           isInstalled: isInstalled,
                           isBusy: _isMutating,
-                          isInstalling: _isMutating && _mutationAction == _MutationAction.install,
-                          isUninstalling: _isMutating && _mutationAction == _MutationAction.uninstall,
+                          isInstalling:
+                              _isMutating &&
+                              _mutationAction == _MutationAction.install,
+                          isUninstalling:
+                              _isMutating &&
+                              _mutationAction == _MutationAction.uninstall,
                           onInstallPressed: () => _handleInstall(detail),
                           onOpenPressed: () => _handleOpen(detail),
                           onUninstallPressed: () => _handleUninstall(detail),
@@ -202,7 +222,10 @@ class _AppInfoViewState extends State<_AppInfoView> {
                                 surfaceColor: surfaceColor,
                                 borderColor: borderColor,
                               ),
-                              if (sideWidgets.isNotEmpty) ...[const SizedBox(height: 24), ...sideWidgets],
+                              if (sideWidgets.isNotEmpty) ...[
+                                const SizedBox(height: 24),
+                                ...sideWidgets,
+                              ],
                             ],
                           );
                         }
@@ -230,7 +253,10 @@ class _AppInfoViewState extends State<_AppInfoView> {
                               ),
                             ),
                             const SizedBox(width: 40),
-                            SizedBox(width: 340, child: Column(children: sideWidgets)),
+                            SizedBox(
+                              width: 340,
+                              child: Column(children: sideWidgets),
+                            ),
                           ],
                         );
                       },
@@ -265,7 +291,9 @@ class _AppInfoViewState extends State<_AppInfoView> {
       _mutationAction = _MutationAction.install;
     });
 
-    final success = await context.read<InstalledAppsBloc>().installApp(detail.appId);
+    final success = await context.read<InstalledAppsBloc>().installApp(
+      detail.appId,
+    );
 
     if (!mounted) {
       return;
@@ -279,19 +307,25 @@ class _AppInfoViewState extends State<_AppInfoView> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          success ? '${detail.name} foi instalado com sucesso.' : 'Nao foi possivel instalar ${detail.name}.',
+          success
+              ? context.l10n.installSuccess(detail.name)
+              : context.l10n.installFailure(detail.name),
         ),
       ),
     );
   }
 
   Future<void> _handleOpen(AppDetailData detail) async {
-    final success = await context.read<InstalledAppsBloc>().openApp(detail.appId);
+    final success = await context.read<InstalledAppsBloc>().openApp(
+      detail.appId,
+    );
     if (!mounted || success) {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Nao foi possivel abrir ${detail.name}.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.openFailure(detail.name))),
+    );
   }
 
   Future<void> _handleUninstall(AppDetailData detail) async {
@@ -300,11 +334,17 @@ class _AppInfoViewState extends State<_AppInfoView> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Desinstalar app?'),
-          content: Text('Deseja remover ${detail.name} do sistema?'),
+          title: Text(context.l10n.uninstallAppQuestion),
+          content: Text(context.l10n.uninstallConfirmation(detail.name)),
           actions: [
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancelar')),
-            FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Desinstalar')),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(context.l10n.uninstall),
+            ),
           ],
         );
       },
@@ -332,7 +372,11 @@ class _AppInfoViewState extends State<_AppInfoView> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(success ? '${detail.name} foi removido do sistema.' : 'Nao foi possivel remover ${detail.name}.'),
+        content: Text(
+          success
+              ? context.l10n.uninstallSuccess(detail.name)
+              : context.l10n.uninstallFailure(detail.name),
+        ),
       ),
     );
   }
@@ -367,25 +411,27 @@ class _HighlightsWrap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final compatibility = app.isMobileFriendly && app.supportsDesktop
-        ? 'Desktop + Mobile'
+        ? context.l10n.desktopAndMobile
         : app.isMobileFriendly
-        ? 'Mobile'
-        : 'Desktop';
+        ? context.l10n.mobile
+        : context.l10n.desktop;
     final sizeValue = app.downloadSizeLabel ?? app.installedSizeLabel ?? '-';
-    final sizeCaption = app.installedSizeLabel != null && app.installedSizeLabel != app.downloadSizeLabel
-        ? 'Instalado: ${app.installedSizeLabel}'
-        : 'Tamanho do pacote';
+    final sizeCaption =
+        app.installedSizeLabel != null &&
+            app.installedSizeLabel != app.downloadSizeLabel
+        ? context.l10n.installedSizeCaption(app.installedSizeLabel!)
+        : context.l10n.packageSize;
     final monthlyValue = _formatCompact(app.downloadsLastMonth);
     final monthlyCaption = app.totalInstalls == null
-        ? 'Downloads no ultimo mes'
-        : '${_formatCompact(app.totalInstalls)} no total';
+        ? context.l10n.lastMonthDownloads
+        : context.l10n.totalDownloads(_formatCompact(app.totalInstalls));
 
     return Wrap(
       spacing: 14,
       runSpacing: 14,
       children: [
         _HighlightCard(
-          label: 'Tamanho',
+          label: context.l10n.size,
           value: sizeValue,
           caption: sizeCaption,
           icon: Icons.inventory_2_outlined,
@@ -395,9 +441,9 @@ class _HighlightsWrap extends StatelessWidget {
           borderColor: borderColor,
         ),
         _HighlightCard(
-          label: 'Compatibilidade',
+          label: context.l10n.compatibility,
           value: compatibility,
-          caption: app.runtimeName ?? 'Suporte principal',
+          caption: app.runtimeName ?? context.l10n.primarySupport,
           icon: Icons.devices_rounded,
           titleColor: titleColor,
           secondaryColor: secondaryColor,
@@ -405,7 +451,7 @@ class _HighlightsWrap extends StatelessWidget {
           borderColor: borderColor,
         ),
         _HighlightCard(
-          label: 'Mensal',
+          label: context.l10n.monthly,
           value: monthlyValue,
           caption: monthlyCaption,
           icon: Icons.ssid_chart_rounded,
@@ -456,7 +502,12 @@ class _HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 200, maxWidth: 250, minHeight: 180, maxHeight: 200),
+      constraints: const BoxConstraints(
+        minWidth: 200,
+        maxWidth: 250,
+        minHeight: 180,
+        maxHeight: 200,
+      ),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -471,17 +522,27 @@ class _HighlightCard extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               label,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: secondaryColor, fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: secondaryColor,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(color: titleColor, fontWeight: FontWeight.w800),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: titleColor,
+                fontWeight: FontWeight.w800,
+              ),
             ),
             const SizedBox(height: 6),
-            Text(caption, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor, height: 1.45)),
+            Text(
+              caption,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: secondaryColor,
+                height: 1.45,
+              ),
+            ),
           ],
         ),
       ),

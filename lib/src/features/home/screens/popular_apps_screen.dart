@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -16,8 +17,12 @@ class PopularAppsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -35,7 +40,7 @@ class PopularAppsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'MAIS POPULARES',
+                      context.l10n.popularAppsEyebrow,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         letterSpacing: 4,
                         fontWeight: FontWeight.w700,
@@ -45,7 +50,7 @@ class PopularAppsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      state.collection.label,
+                      _collectionLabel(context, state.collection),
                       style: AppTextStyles.titleLargeNormal.copyWith(
                         color: titleColor,
                         fontSize: 54,
@@ -54,8 +59,10 @@ class PopularAppsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      state.collection.description,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor),
+                      _collectionDescription(context, state.collection),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge?.copyWith(color: secondaryColor),
                     ),
                     const SizedBox(height: 26),
                     Wrap(
@@ -68,7 +75,7 @@ class PopularAppsScreen extends StatelessWidget {
                           child: DropdownButtonFormField<HomePopularCollection>(
                             initialValue: state.collection,
                             decoration: InputDecoration(
-                              labelText: 'Critério',
+                              labelText: context.l10n.sortBy,
                               filled: true,
                               fillColor: surfaceColor,
                               border: OutlineInputBorder(
@@ -82,10 +89,13 @@ class PopularAppsScreen extends StatelessWidget {
                             ),
                             items: HomePopularCollection.values
                                 .map(
-                                  (item) => DropdownMenuItem<HomePopularCollection>(
-                                    value: item,
-                                    child: Text(item.label),
-                                  ),
+                                  (item) =>
+                                      DropdownMenuItem<HomePopularCollection>(
+                                        value: item,
+                                        child: Text(
+                                          _collectionLabel(context, item),
+                                        ),
+                                      ),
                                 )
                                 .toList(growable: false),
                             onChanged: (value) {
@@ -93,34 +103,43 @@ class PopularAppsScreen extends StatelessWidget {
                                 return;
                               }
 
-                              context.read<PopularAppsBloc>().add(PopularAppsCollectionChanged(value));
+                              context.read<PopularAppsBloc>().add(
+                                PopularAppsCollectionChanged(value),
+                              );
                             },
                           ),
                         ),
                         OutlinedButton.icon(
                           onPressed: state.status == PopularAppsStatus.loading
                               ? null
-                              : () => context.read<PopularAppsBloc>().add(const PopularAppsRetried()),
+                              : () => context.read<PopularAppsBloc>().add(
+                                  const PopularAppsRetried(),
+                                ),
                           icon: const Icon(Icons.refresh_rounded),
-                          label: const Text('Atualizar'),
+                          label: Text(context.l10n.refresh),
                         ),
                         if (state.totalHits > 0)
                           Text(
-                            '${state.totalHits} apps encontrados',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                            context.l10n.appsFound(state.totalHits),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: secondaryColor),
                           ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    if (state.status == PopularAppsStatus.loading && state.apps.isEmpty)
+                    if (state.status == PopularAppsStatus.loading &&
+                        state.apps.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 56),
                         child: Center(child: CircularProgressIndicator()),
                       )
-                    else if (state.status == PopularAppsStatus.failure && state.apps.isEmpty)
+                    else if (state.status == PopularAppsStatus.failure &&
+                        state.apps.isEmpty)
                       _ErrorPanel(
-                        message: state.errorMessage ?? 'Não foi possível carregar os apps.',
-                        onRetry: () => context.read<PopularAppsBloc>().add(const PopularAppsRetried()),
+                        message: context.l10n.popularFailure,
+                        onRetry: () => context.read<PopularAppsBloc>().add(
+                          const PopularAppsRetried(),
+                        ),
                         titleColor: titleColor,
                         secondaryColor: secondaryColor,
                         surfaceColor: surfaceColor,
@@ -133,10 +152,11 @@ class PopularAppsScreen extends StatelessWidget {
                           final columns = width >= 1220
                               ? 3
                               : width >= 840
-                                  ? 2
-                                  : 1;
+                              ? 2
+                              : 1;
                           const spacing = 14.0;
-                          final cardWidth = (width - ((columns - 1) * spacing)) / columns;
+                          final cardWidth =
+                              (width - ((columns - 1) * spacing)) / columns;
 
                           return Wrap(
                             spacing: spacing,
@@ -164,32 +184,44 @@ class PopularAppsScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           OutlinedButton.icon(
-                            onPressed: state.canGoPrevious && state.status != PopularAppsStatus.loading
-                                ? () => context.read<PopularAppsBloc>().add(PopularAppsPageChanged(state.page - 1))
+                            onPressed:
+                                state.canGoPrevious &&
+                                    state.status != PopularAppsStatus.loading
+                                ? () => context.read<PopularAppsBloc>().add(
+                                    PopularAppsPageChanged(state.page - 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_left_rounded),
-                            label: const Text('Anterior'),
+                            label: Text(context.l10n.previous),
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 11,
+                            ),
                             decoration: BoxDecoration(
                               color: surfaceColor,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: borderColor),
                             ),
                             child: Text(
-                              'Página ${state.page} de ${state.totalPages}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: titleColor),
+                              context.l10n.pageOf(state.page, state.totalPages),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: titleColor),
                             ),
                           ),
                           const SizedBox(width: 12),
                           FilledButton.icon(
-                            onPressed: state.canGoNext && state.status != PopularAppsStatus.loading
-                                ? () => context.read<PopularAppsBloc>().add(PopularAppsPageChanged(state.page + 1))
+                            onPressed:
+                                state.canGoNext &&
+                                    state.status != PopularAppsStatus.loading
+                                ? () => context.read<PopularAppsBloc>().add(
+                                    PopularAppsPageChanged(state.page + 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_right_rounded),
-                            label: const Text('Próxima'),
+                            label: Text(context.l10n.next),
                           ),
                         ],
                       ),
@@ -229,7 +261,10 @@ class _PopularAppCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => context.pushNamed(AppRoutes.APP_INFO, pathParameters: {AppRoutes.appIdParam: app.appId}),
+        onTap: () => context.pushNamed(
+          AppRoutes.APP_INFO,
+          pathParameters: {AppRoutes.appIdParam: app.appId},
+        ),
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(14),
@@ -245,7 +280,9 @@ class _PopularAppCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2D40) : const Color(0xFFE8F3FF),
+                  color: isDark
+                      ? const Color(0xFF2A2D40)
+                      : const Color(0xFFE8F3FF),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ClipRRect(
@@ -255,7 +292,8 @@ class _PopularAppCard extends StatelessWidget {
                       : Image.network(
                           app.iconUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Icon(Icons.apps_rounded, color: titleColor),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(Icons.apps_rounded, color: titleColor),
                         ),
                 ),
               ),
@@ -273,12 +311,18 @@ class _PopularAppCard extends StatelessWidget {
                           app.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
                                 color: titleColor,
                                 fontWeight: FontWeight.w700,
                               ),
                         ),
-                        if (app.verified) const Icon(Icons.verified_rounded, size: 14, color: AppColors.accent),
+                        if (app.verified)
+                          const Icon(
+                            Icons.verified_rounded,
+                            size: 14,
+                            color: AppColors.accent,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 2),
@@ -286,24 +330,29 @@ class _PopularAppCard extends StatelessWidget {
                       app.developerName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: secondaryColor),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       app.summary,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor, height: 1.35),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: secondaryColor,
+                        height: 1.35,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      _metricLabel(collection, app),
+                      _metricLabel(context, collection, app),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: titleColor,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        color: titleColor,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ],
                 ),
@@ -315,29 +364,33 @@ class _PopularAppCard extends StatelessWidget {
     );
   }
 
-  String _metricLabel(HomePopularCollection collection, HomePopularAppData app) {
+  String _metricLabel(
+    BuildContext context,
+    HomePopularCollection collection,
+    HomePopularAppData app,
+  ) {
     switch (collection) {
       case HomePopularCollection.popular:
         final installs = app.installsLastMonth;
         if (installs == null) {
-          return 'Sem métricas de instalações.';
+          return context.l10n.noInstallMetrics;
         }
 
-        return '${_formatNumber(installs)} instalações no último mês';
+        return context.l10n.lastMonthInstalls(_formatNumber(installs));
       case HomePopularCollection.trending:
         final score = app.trendingScore;
         if (score == null) {
-          return 'Sem score de crescimento disponível.';
+          return context.l10n.noTrendingScore;
         }
 
-        return 'Score de tendência: ${score.toStringAsFixed(2)}';
+        return context.l10n.trendingScoreLabel(score.toStringAsFixed(2));
       case HomePopularCollection.favorites:
         final favorites = app.favoritesCount;
         if (favorites == null) {
-          return 'Sem contagem de favoritos.';
+          return context.l10n.noFavoritesCount;
         }
 
-        return '${_formatNumber(favorites)} favoritos';
+        return context.l10n.favoritesCount(_formatNumber(favorites));
     }
   }
 
@@ -391,22 +444,51 @@ class _ErrorPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Não conseguimos carregar essa lista.',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+            context.l10n.listLoadFailure,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: titleColor,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
           ),
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tentar novamente'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),
     );
   }
+}
+
+String _collectionLabel(
+  BuildContext context,
+  HomePopularCollection collection,
+) {
+  return switch (collection) {
+    HomePopularCollection.popular => context.l10n.collectionPopular,
+    HomePopularCollection.trending => context.l10n.collectionTrending,
+    HomePopularCollection.favorites => context.l10n.collectionFavorites,
+  };
+}
+
+String _collectionDescription(
+  BuildContext context,
+  HomePopularCollection collection,
+) {
+  return switch (collection) {
+    HomePopularCollection.popular => context.l10n.collectionPopularDescription,
+    HomePopularCollection.trending =>
+      context.l10n.collectionTrendingDescription,
+    HomePopularCollection.favorites =>
+      context.l10n.collectionFavoritesDescription,
+  };
 }

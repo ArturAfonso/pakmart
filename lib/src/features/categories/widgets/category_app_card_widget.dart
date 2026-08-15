@@ -1,14 +1,13 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/features/categories/models/category_remote_models.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class CategoryAppCard extends StatelessWidget {
-  const CategoryAppCard({super.key, 
+  const CategoryAppCard({
+    super.key,
     required this.app,
     required this.titleColor,
     required this.secondaryColor,
@@ -47,7 +46,9 @@ class CategoryAppCard extends StatelessWidget {
                 width: 62,
                 height: 62,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2D40) : const Color(0xFFE8F3FF),
+                  color: isDark
+                      ? const Color(0xFF2A2D40)
+                      : const Color(0xFFE8F3FF),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: ClipRRect(
@@ -56,7 +57,9 @@ class CategoryAppCard extends StatelessWidget {
                       ? Icon(
                           Icons.apps_rounded,
                           size: 30,
-                          color: isDark ? AppColors.darkBackground : AppColors.textPrimary,
+                          color: isDark
+                              ? AppColors.darkBackground
+                              : AppColors.textPrimary,
                         )
                       : Image.network(
                           app.iconUrl!,
@@ -64,7 +67,9 @@ class CategoryAppCard extends StatelessWidget {
                           errorBuilder: (context, error, stackTrace) => Icon(
                             Icons.apps_rounded,
                             size: 30,
-                            color: isDark ? AppColors.darkBackground : AppColors.textPrimary,
+                            color: isDark
+                                ? AppColors.darkBackground
+                                : AppColors.textPrimary,
                           ),
                         ),
                 ),
@@ -83,12 +88,18 @@ class CategoryAppCard extends StatelessWidget {
                           app.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 color: titleColor,
                                 fontWeight: FontWeight.w700,
                               ),
                         ),
-                        if (app.verified) const Icon(Icons.verified_outlined, size: 15, color: AppColors.accent),
+                        if (app.verified)
+                          const Icon(
+                            Icons.verified_outlined,
+                            size: 15,
+                            color: AppColors.accent,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 2),
@@ -96,27 +107,39 @@ class CategoryAppCard extends StatelessWidget {
                       app.publisher,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.star_rounded, size: 16, color: AppColors.accent),
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 16,
+                          color: AppColors.accent,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          app.installsLastMonth == null ? 'Sem dados' : _formatNumber(app.installsLastMonth!),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: titleColor),
+                          app.installsLastMonth == null
+                              ? context.l10n.noData
+                              : _formatNumber(app.installsLastMonth!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: titleColor),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           '·',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: secondaryColor),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          app.mainCategory ?? 'Geral',
+                          app.mainCategory ?? context.l10n.general,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: secondaryColor),
                         ),
                       ],
                     ),

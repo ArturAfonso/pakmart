@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -16,19 +17,21 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(82.0);
 
-    
-
   @override
   Widget build(BuildContext context) {
     final currentLocation = GoRouterState.of(context).matchedLocation;
-    final selectedColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final unselectedColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final selectedColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final unselectedColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
 
     return AppBar(
       title: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-        /*    Container(
+          /*    Container(
             child: Column(
               children: [
                
@@ -42,38 +45,47 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),  */
           // Image.asset('assets/icons/logo-custom.png', width: 80, height: 80),
-           Text('Pakmart', style: AppTextStyles.titleMediumItalic.copyWith(color: AppColors.accent)),
-           const SizedBox(width: 24),
+          Text(
+            'Pakmart',
+            style: AppTextStyles.titleMediumItalic.copyWith(
+              color: AppColors.accent,
+            ),
+          ),
+          const SizedBox(width: 24),
           Flexible(
             child: SingleChildScrollView(
-               scrollDirection: Axis.horizontal,
+              scrollDirection: Axis.horizontal,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   MenuButton(
-                    label: 'Explorar',
+                    label: context.l10n.explore,
                     selected: currentLocation == AppRoutes.homePath,
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onPressed: () => context.goNamed(AppRoutes.HOME),
                   ),
                   MenuButton(
-                    label: 'Categorias',
-                    selected: currentLocation.startsWith(AppRoutes.categoriesPath),
+                    label: context.l10n.categories,
+                    selected: currentLocation.startsWith(
+                      AppRoutes.categoriesPath,
+                    ),
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onPressed: () => context.goNamed(AppRoutes.CATEGORIES),
                   ),
                   MenuButton(
-                    label: 'Instalados',
-                    selected: currentLocation.startsWith(AppRoutes.installedPath),
+                    label: context.l10n.installed,
+                    selected: currentLocation.startsWith(
+                      AppRoutes.installedPath,
+                    ),
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onPressed: () => context.goNamed(AppRoutes.INSTALLED),
                   ),
                   MenuButton(
-                    label: 'Preferências',
+                    label: context.l10n.preferences,
                     selected: currentLocation == AppRoutes.preferencesPath,
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
@@ -94,8 +106,11 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           icon: Icon(
             isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.textSecondary,
           ),
+          tooltip: context.l10n.themeToggleTooltip,
         ),
         const SizedBox(width: 16),
       ],

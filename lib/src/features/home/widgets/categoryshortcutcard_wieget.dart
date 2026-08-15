@@ -1,12 +1,12 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/features/categories/models/category_remote_models.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
 
 class CategoryShortcutCard extends StatelessWidget {
-  const CategoryShortcutCard({super.key, 
+  const CategoryShortcutCard({
+    super.key,
     required this.category,
     required this.titleColor,
     required this.secondaryColor,
@@ -43,14 +43,14 @@ class CategoryShortcutCard extends StatelessWidget {
             children: [
               Icon(category.icon, size: 34, color: category.iconColor),
               Text(
-                category.title,
+                context.l10n.categoryTitle(category.id, category.title),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: titleColor,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: titleColor,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),

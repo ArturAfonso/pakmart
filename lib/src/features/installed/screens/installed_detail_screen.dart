@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -48,7 +49,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
     if (app == null) {
       return Center(
         child: Text(
-          'Aplicativo não encontrado.',
+          context.l10n.appNotFound,
           style: AppTextStyles.bodyLarge.copyWith(color: titleColor),
         ),
       );
@@ -86,7 +87,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
                       size: 18,
                     ),
                     label: Text(
-                      'Instalados',
+                      context.l10n.installed,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: secondaryColor,
                         fontWeight: FontWeight.w600,
@@ -247,23 +248,24 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
     if (app == null) {
       return;
     }
+    final installedAppsBloc = context.read<InstalledAppsBloc>();
 
     try {
       if (isStaticPermission) {
-        await context.read<InstalledAppsBloc>().setStaticPermissionOverride(
+        await installedAppsBloc.setStaticPermissionOverride(
           appId: app.packageName,
           permissionKey: permissionKey,
           enabled: value,
         );
       } else {
-        await context.read<InstalledAppsBloc>().setDynamicPermissionOverride(
+        await installedAppsBloc.setDynamicPermissionOverride(
           appId: app.packageName,
           permissionKey: permissionKey,
           enabled: value,
         );
       }
 
-      await context.read<InstalledAppsBloc>().refresh();
+      await installedAppsBloc.refresh();
 
       if (!mounted) {
         return;
@@ -277,9 +279,11 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
         _toggleValues[permissionKey] = previousValue;
       });
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Falha ao salvar permissao: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.permissionSaveFailure(e.toString())),
+        ),
+      );
     }
   }
 
@@ -291,7 +295,7 @@ class _InstalledDetailScreenState extends State<InstalledDetailScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${app.name} foi desinstalado com sucesso.')),
+      SnackBar(content: Text(context.l10n.uninstallSuccess(app.name))),
     );
 
     if (context.canPop()) {

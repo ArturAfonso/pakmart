@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -44,8 +45,12 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -75,12 +80,16 @@ class _SearchScreenState extends State<SearchScreen> {
                             context.goNamed(AppRoutes.HOME);
                           },
                           icon: const Icon(Icons.arrow_back_rounded),
-                          tooltip: 'Voltar',
+                          tooltip: context.l10n.back,
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          'Buscar aplicativos',
-                          style: AppTextStyles.titleLargeNormal.copyWith(color: titleColor, fontSize: 38, height: 1.1),
+                          context.l10n.searchAppsTitle,
+                          style: AppTextStyles.titleLargeNormal.copyWith(
+                            color: titleColor,
+                            fontSize: 38,
+                            height: 1.1,
+                          ),
                         ),
                       ],
                     ),
@@ -92,27 +101,37 @@ class _SearchScreenState extends State<SearchScreen> {
                     const SizedBox(height: 12), */
                     if (state.hasQuery)
                       Text(
-                        '${state.totalHits} resultados para "${state.query}"',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                        context.l10n.searchResultsFor(
+                          state.totalHits,
+                          state.query,
+                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
                       ),
                     const SizedBox(height: 16),
                     if (!state.hasQuery)
                       _EmptySearchHint(secondaryColor: secondaryColor)
-                    else if (state.status == SearchStatus.loading && state.results.isEmpty)
+                    else if (state.status == SearchStatus.loading &&
+                        state.results.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 56),
                         child: Center(child: CircularProgressIndicator()),
                       )
-                    else if (state.status == SearchStatus.failure && state.results.isEmpty)
+                    else if (state.status == SearchStatus.failure &&
+                        state.results.isEmpty)
                       _ErrorSearchPanel(
-                        message: state.errorMessage ?? 'Falha ao buscar resultados.',
-                        onRetry: () => context.read<SearchBloc>().add(const SearchRetried()),
+                        message: context.l10n.searchFailure,
+                        onRetry: () => context.read<SearchBloc>().add(
+                          const SearchRetried(),
+                        ),
                         titleColor: titleColor,
                         secondaryColor: secondaryColor,
                         surfaceColor: surfaceColor,
                         borderColor: borderColor,
                       )
-                    else if (state.status == SearchStatus.success && state.results.isEmpty)
+                    else if (state.status == SearchStatus.success &&
+                        state.results.isEmpty)
                       _NoResultsHint(secondaryColor: secondaryColor)
                     else ...[
                       LayoutBuilder(
@@ -124,7 +143,8 @@ class _SearchScreenState extends State<SearchScreen> {
                               ? 2
                               : 1;
                           const spacing = 14.0;
-                          final cardWidth = (width - ((columns - 1) * spacing)) / columns;
+                          final cardWidth =
+                              (width - ((columns - 1) * spacing)) / columns;
 
                           return Wrap(
                             spacing: spacing,
@@ -151,32 +171,44 @@ class _SearchScreenState extends State<SearchScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           OutlinedButton.icon(
-                            onPressed: state.canGoPrevious && state.status != SearchStatus.loading
-                                ? () => context.read<SearchBloc>().add(SearchPageChanged(state.page - 1))
+                            onPressed:
+                                state.canGoPrevious &&
+                                    state.status != SearchStatus.loading
+                                ? () => context.read<SearchBloc>().add(
+                                    SearchPageChanged(state.page - 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_left_rounded),
-                            label: const Text('Anterior'),
+                            label: Text(context.l10n.previous),
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 11,
+                            ),
                             decoration: BoxDecoration(
                               color: surfaceColor,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: borderColor),
                             ),
                             child: Text(
-                              'Página ${state.page} de ${state.totalPages}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: titleColor),
+                              context.l10n.pageOf(state.page, state.totalPages),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: titleColor),
                             ),
                           ),
                           const SizedBox(width: 12),
                           FilledButton.icon(
-                            onPressed: state.canGoNext && state.status != SearchStatus.loading
-                                ? () => context.read<SearchBloc>().add(SearchPageChanged(state.page + 1))
+                            onPressed:
+                                state.canGoNext &&
+                                    state.status != SearchStatus.loading
+                                ? () => context.read<SearchBloc>().add(
+                                    SearchPageChanged(state.page + 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_right_rounded),
-                            label: const Text('Próxima'),
+                            label: Text(context.l10n.next),
                           ),
                         ],
                       ),
@@ -214,7 +246,10 @@ class _SearchResultCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => context.pushNamed(AppRoutes.APP_INFO, pathParameters: {AppRoutes.appIdParam: app.appId}),
+        onTap: () => context.pushNamed(
+          AppRoutes.APP_INFO,
+          pathParameters: {AppRoutes.appIdParam: app.appId},
+        ),
         borderRadius: BorderRadius.circular(24),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -229,7 +264,9 @@ class _SearchResultCard extends StatelessWidget {
                 width: 62,
                 height: 62,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF2A2D40) : const Color(0xFFE8F3FF),
+                  color: isDark
+                      ? const Color(0xFF2A2D40)
+                      : const Color(0xFFE8F3FF),
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: ClipRRect(
@@ -239,8 +276,11 @@ class _SearchResultCard extends StatelessWidget {
                       : Image.network(
                           app.iconUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Icon(Icons.apps_rounded, size: 30, color: titleColor),
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.apps_rounded,
+                            size: 30,
+                            color: titleColor,
+                          ),
                         ),
                 ),
               ),
@@ -258,11 +298,18 @@ class _SearchResultCard extends StatelessWidget {
                           app.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: titleColor,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
-                        if (app.verified) const Icon(Icons.verified_outlined, size: 15, color: AppColors.accent),
+                        if (app.verified)
+                          const Icon(
+                            Icons.verified_outlined,
+                            size: 15,
+                            color: AppColors.accent,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 2),
@@ -270,32 +317,50 @@ class _SearchResultCard extends StatelessWidget {
                       app.publisher,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       app.summary,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor, height: 1.35),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: secondaryColor,
+                        height: 1.35,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Icon(Icons.download_rounded, size: 16, color: AppColors.accent),
+                        const Icon(
+                          Icons.download_rounded,
+                          size: 16,
+                          color: AppColors.accent,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          app.installsLastMonth == null ? 'Sem dados' : _formatNumber(app.installsLastMonth!),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: titleColor),
+                          app.installsLastMonth == null
+                              ? context.l10n.noData
+                              : _formatNumber(app.installsLastMonth!),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: titleColor),
                         ),
                         const SizedBox(width: 8),
-                        Text('·', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor)),
+                        Text(
+                          '·',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: secondaryColor),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            app.mainCategory ?? 'Geral',
+                            app.mainCategory ?? context.l10n.general,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: secondaryColor),
                           ),
                         ),
                       ],
@@ -340,8 +405,10 @@ class _EmptySearchHint extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Center(
         child: Text(
-          'Digite um termo para começar a busca.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor),
+          context.l10n.searchStartHint,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: secondaryColor),
         ),
       ),
     );
@@ -359,8 +426,10 @@ class _NoResultsHint extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Center(
         child: Text(
-          'Nenhum app encontrado para esse termo.',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor),
+          context.l10n.searchNoResults,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: secondaryColor),
         ),
       ),
     );
@@ -398,16 +467,24 @@ class _ErrorSearchPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Busca indisponível',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+            context.l10n.searchUnavailable,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: titleColor,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
-          Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor)),
+          Text(
+            message,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+          ),
           const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tentar novamente'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),

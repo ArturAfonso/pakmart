@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
 
@@ -31,13 +32,23 @@ class AboutCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Sobre', style: AppTextStyles.titleMediumNormal.copyWith(color: titleColor, fontSize: 24)),
+          Text(
+            context.l10n.about,
+            style: AppTextStyles.titleMediumNormal.copyWith(
+              color: titleColor,
+              fontSize: 24,
+            ),
+          ),
           const SizedBox(height: 10),
           Text(
             app.description,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor, height: 1.55),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: secondaryColor,
+              height: 1.55,
+            ),
           ),
-          if (app.latestReleaseVersion != null || app.latestReleaseDescription != null) ...[
+          if (app.latestReleaseVersion != null ||
+              app.latestReleaseDescription != null) ...[
             const SizedBox(height: 22),
             Container(
               width: double.infinity,
@@ -51,16 +62,24 @@ class AboutCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    app.latestReleaseVersion == null ? 'Release recente' : 'Release ${app.latestReleaseVersion}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+                    app.latestReleaseVersion == null
+                        ? context.l10n.recentRelease
+                        : context.l10n.releaseVersion(
+                            app.latestReleaseVersion!,
+                          ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: titleColor,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   if (app.latestReleaseDescription != null) ...[
                     const SizedBox(height: 8),
                     Text(
                       app.latestReleaseDescription!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor, height: 1.5),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: secondaryColor,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ],

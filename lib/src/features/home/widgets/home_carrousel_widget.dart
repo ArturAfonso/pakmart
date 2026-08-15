@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
@@ -47,7 +48,8 @@ class _HomeCarouselState extends State<HomeCarousel> {
   @override
   void didUpdateWidget(covariant HomeCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final intervalChanged = oldWidget.autoAdvanceInterval != widget.autoAdvanceInterval;
+    final intervalChanged =
+        oldWidget.autoAdvanceInterval != widget.autoAdvanceInterval;
     final appsChanged = oldWidget.apps.length != widget.apps.length;
 
     if (intervalChanged || appsChanged) {
@@ -65,7 +67,9 @@ class _HomeCarouselState extends State<HomeCarousel> {
     _autoAdvanceTimer?.cancel();
 
     final interval = widget.autoAdvanceInterval;
-    if (interval == null || interval <= Duration.zero || widget.apps.length < 2) {
+    if (interval == null ||
+        interval <= Duration.zero ||
+        widget.apps.length < 2) {
       return;
     }
 
@@ -79,14 +83,21 @@ class _HomeCarouselState extends State<HomeCarousel> {
           : widget.currentPage;
       final next = (current + 1) % widget.apps.length;
 
-      widget.controller.animateToPage(next, duration: const Duration(milliseconds: 320), curve: Curves.easeOutCubic);
+      widget.controller.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutCubic,
+      );
     });
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.apps.isEmpty) {
-      return const SizedBox(height: 430, child: Center(child: CircularProgressIndicator()));
+      return const SizedBox(
+        height: 430,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return SizedBox(
@@ -102,21 +113,30 @@ class _HomeCarouselState extends State<HomeCarousel> {
                 itemCount: widget.apps.length,
                 itemBuilder: (context, index) {
                   final app = widget.apps[index];
-                  final fallback = HomeCarousel._heroGradients[index % HomeCarousel._heroGradients.length];
-                  final colors = <Color>[app.heroGradientStart ?? fallback[0], app.heroGradientEnd ?? fallback[1]];
+                  final fallback =
+                      HomeCarousel._heroGradients[index %
+                          HomeCarousel._heroGradients.length];
+                  final colors = <Color>[
+                    app.heroGradientStart ?? fallback[0],
+                    app.heroGradientEnd ?? fallback[1],
+                  ];
 
                   return InkWell(
                     onTap: app.detailRouteAppId == null
                         ? null
                         : () => context.pushNamed(
                             AppRoutes.APP_INFO,
-                            pathParameters: {AppRoutes.appIdParam: app.detailRouteAppId!},
+                            pathParameters: {
+                              AppRoutes.appIdParam: app.detailRouteAppId!,
+                            },
                           ),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          
-                          begin: Alignment.bottomCenter, end: Alignment.topCenter, colors: colors),
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: colors,
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(36, 28, 36, 24),
@@ -128,62 +148,102 @@ class _HomeCarouselState extends State<HomeCarousel> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 7,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withValues(alpha: 0.16),
                                     borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
+                                    border: Border.all(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                    ),
                                   ),
                                   child: Text(
-                                    'EM DESTAQUE',
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 1.2,
-                                    ),
+                                    context.l10n.featuredLabel,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 1.2,
+                                        ),
                                   ),
                                 ),
                                 Expanded(
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             const SizedBox(height: 18),
                                             Text(
                                               app.name,
-                                              style: AppTextStyles.titleLarge.copyWith(
-                                                color: Colors.white,
-                                                fontSize: compact ? 42 : 54,
-                                                height: 1,
-                                              ),
+                                              style: AppTextStyles.titleLarge
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: compact ? 42 : 54,
+                                                    height: 1,
+                                                  ),
                                             ),
                                             const SizedBox(height: 12),
                                             ConstrainedBox(
-                                              constraints: const BoxConstraints(maxWidth: 480),
+                                              constraints: const BoxConstraints(
+                                                maxWidth: 480,
+                                              ),
                                               child: Text(
                                                 app.tagline,
-                                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                                  color: Colors.white.withValues(alpha: 0.9),
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.4,
-                                                ),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineSmall
+                                                    ?.copyWith(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                            alpha: 0.9,
+                                                          ),
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      height: 1.4,
+                                                    ),
                                               ),
                                             ),
                                             const SizedBox(height: 24),
                                             FilledButton.icon(
-                                              onPressed: () => widget.onOpenExternal(app.flathubUrl),
+                                              onPressed: () =>
+                                                  widget.onOpenExternal(
+                                                    app.flathubUrl,
+                                                  ),
                                               style: FilledButton.styleFrom(
                                                 backgroundColor: Colors.white,
-                                                foregroundColor: const Color(0xFF2D2926),
-                                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                                                foregroundColor: const Color(
+                                                  0xFF2D2926,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 20,
+                                                      vertical: 16,
+                                                    ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(18),
+                                                ),
                                               ),
-                                              icon: const Icon(Icons.open_in_new, size: 18),
-                                              label: const Text('Ver no Flathub'),
+                                              icon: const Icon(
+                                                Icons.open_in_new,
+                                                size: 18,
+                                              ),
+                                              label: Text(
+                                                context.l10n.seeOnFlathub,
+                                              ),
                                             ),
                                             const SizedBox(height: 24),
                                           ],
@@ -192,30 +252,54 @@ class _HomeCarouselState extends State<HomeCarousel> {
                                       if (!compact) ...[
                                         const SizedBox(width: 24),
                                         Container(
-                                          width: MediaQuery.of(context).size.width * 0.15,
-                                          height: MediaQuery.of(context).size.width * 0.15,
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.15,
+                                          height:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.15,
                                           decoration: BoxDecoration(
                                             color: app.iconBackground,
-                                            borderRadius: BorderRadius.circular(32),
+                                            borderRadius: BorderRadius.circular(
+                                              32,
+                                            ),
                                           ),
                                           child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(24),
+                                            borderRadius: BorderRadius.circular(
+                                              24,
+                                            ),
                                             child: app.iconUrl == null
                                                 ? Icon(
-                                                    app.iconData ?? Icons.apps_rounded,
+                                                    app.iconData ??
+                                                        Icons.apps_rounded,
                                                     size: 86,
-                                                    color: Colors.white.withValues(alpha: 0.9),
+                                                    color: Colors.white
+                                                        .withValues(alpha: 0.9),
                                                   )
                                                 : Image.network(
                                                     app.iconUrl!,
                                                     fit: BoxFit.contain,
-                                                    errorBuilder: (context, error, stackTrace) {
-                                                      return Icon(
-                                                        app.iconData ?? Icons.apps_rounded,
-                                                        size: 86,
-                                                        color: Colors.white.withValues(alpha: 0.9),
-                                                      );
-                                                    },
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) {
+                                                          return Icon(
+                                                            app.iconData ??
+                                                                Icons
+                                                                    .apps_rounded,
+                                                            size: 86,
+                                                            color: Colors.white
+                                                                .withValues(
+                                                                  alpha: 0.9,
+                                                                ),
+                                                          );
+                                                        },
                                                   ),
                                           ),
                                         ),
@@ -234,34 +318,55 @@ class _HomeCarouselState extends State<HomeCarousel> {
                                             : widget.currentPage - 1;
                                         widget.controller.animateToPage(
                                           previous,
-                                          duration: const Duration(milliseconds: 280),
+                                          duration: const Duration(
+                                            milliseconds: 280,
+                                          ),
                                           curve: Curves.easeOutCubic,
                                         );
                                       },
                                     ),
                                     const Spacer(),
-                                    for (var index = 0; index < widget.apps.length; index++) ...[
+                                    for (
+                                      var index = 0;
+                                      index < widget.apps.length;
+                                      index++
+                                    ) ...[
                                       AnimatedContainer(
-                                        duration: const Duration(milliseconds: 180),
-                                        width: index == widget.currentPage ? 22 : 6,
+                                        duration: const Duration(
+                                          milliseconds: 180,
+                                        ),
+                                        width: index == widget.currentPage
+                                            ? 22
+                                            : 6,
                                         height: 6,
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: index == widget.currentPage ? 2 : 0.78),
-                                          borderRadius: BorderRadius.circular(999),
+                                          color: Colors.white.withValues(
+                                            alpha: index == widget.currentPage
+                                                ? 2
+                                                : 0.78,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            999,
+                                          ),
                                         ),
                                       ),
-                                      if (index != widget.apps.length - 1) const SizedBox(width: 6),
+                                      if (index != widget.apps.length - 1)
+                                        const SizedBox(width: 6),
                                     ],
                                     const Spacer(),
                                     CarouselArrowButton(
                                       icon: Icons.chevron_right_rounded,
                                       onPressed: () {
-                                        final next = widget.currentPage == widget.apps.length - 1
+                                        final next =
+                                            widget.currentPage ==
+                                                widget.apps.length - 1
                                             ? 0
                                             : widget.currentPage + 1;
                                         widget.controller.animateToPage(
                                           next,
-                                          duration: const Duration(milliseconds: 280),
+                                          duration: const Duration(
+                                            milliseconds: 280,
+                                          ),
                                           curve: Curves.easeOutCubic,
                                         );
                                       },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,12 +37,22 @@ class AppLinksCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Links uteis', style: AppTextStyles.titleMediumNormal.copyWith(color: titleColor, fontSize: 24)),
+          Text(
+            context.l10n.usefulLinks,
+            style: AppTextStyles.titleMediumNormal.copyWith(
+              color: titleColor,
+              fontSize: 24,
+            ),
+          ),
           const SizedBox(height: 14),
           Column(
             children: [
               for (var index = 0; index < links.length; index++) ...[
-                _LinkTile(link: links[index], titleColor: titleColor, secondaryColor: secondaryColor),
+                _LinkTile(
+                  link: links[index],
+                  titleColor: titleColor,
+                  secondaryColor: secondaryColor,
+                ),
                 if (index != links.length - 1) const SizedBox(height: 10),
               ],
             ],
@@ -53,7 +64,11 @@ class AppLinksCard extends StatelessWidget {
 }
 
 class _LinkTile extends StatelessWidget {
-  const _LinkTile({required this.link, required this.titleColor, required this.secondaryColor});
+  const _LinkTile({
+    required this.link,
+    required this.titleColor,
+    required this.secondaryColor,
+  });
 
   final AppDetailLinkData link;
   final Color titleColor;
@@ -79,17 +94,20 @@ class _LinkTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      link.label,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+                      _localizedLinkLabel(context, link.label),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: titleColor,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       link.url,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: secondaryColor),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: secondaryColor),
                     ),
                   ],
                 ),
@@ -109,9 +127,34 @@ class _LinkTile extends StatelessWidget {
       return;
     }
 
-    final didLaunch = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final didLaunch = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
     if (!didLaunch && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Nao foi possivel abrir ${link.label}.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.l10n.linkOpenFailure(
+              _localizedLinkLabel(context, link.label),
+            ),
+          ),
+        ),
+      );
     }
   }
+}
+
+String _localizedLinkLabel(BuildContext context, String label) {
+  return switch (label) {
+    'Site oficial' => context.l10n.officialWebsite,
+    'Ajuda' => context.l10n.help,
+    'Relatar problema' => context.l10n.reportIssue,
+    'Codigo-fonte' => context.l10n.sourceCode,
+    'Traduzir' => context.l10n.translate,
+    'Apoiar projeto' => context.l10n.supportProject,
+    'Contribuir' => context.l10n.contribute,
+    'Contato' => context.l10n.contact,
+    _ => label,
+  };
 }

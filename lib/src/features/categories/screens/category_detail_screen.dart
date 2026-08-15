@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -17,8 +18,12 @@ class CategoryDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
-    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final titleColor = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.textPrimary;
+    final secondaryColor = isDark
+        ? AppColors.darkTextSecondary
+        : AppColors.textSecondary;
     final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
     final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
 
@@ -43,28 +48,37 @@ class CategoryDetailScreen extends StatelessWidget {
                           context.goNamed(AppRoutes.CATEGORIES);
                         }
                       },
-                      icon: Icon(Icons.arrow_back_rounded, color: secondaryColor, size: 18),
+                      icon: Icon(
+                        Icons.arrow_back_rounded,
+                        color: secondaryColor,
+                        size: 18,
+                      ),
                       label: Text(
-                        'Categorias',
+                        context.l10n.categories,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: secondaryColor,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          color: secondaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 18),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(state.presentation.icon, size: 58, color: state.presentation.iconColor),
+                        Icon(
+                          state.presentation.icon,
+                          size: 58,
+                          color: state.presentation.iconColor,
+                        ),
                         const SizedBox(width: 20),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'PRATELEIRA',
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                context.l10n.shelf,
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
                                       letterSpacing: 4,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
@@ -73,7 +87,10 @@ class CategoryDetailScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                state.presentation.title,
+                                context.l10n.categoryTitle(
+                                  state.presentation.id,
+                                  state.presentation.title,
+                                ),
                                 style: AppTextStyles.titleLargeNormal.copyWith(
                                   color: titleColor,
                                   fontSize: 54,
@@ -82,8 +99,12 @@ class CategoryDetailScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                state.presentation.description,
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: secondaryColor),
+                                context.l10n.categoryDescription(
+                                  state.presentation.id,
+                                  state.presentation.title,
+                                ),
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(color: secondaryColor),
                               ),
                             ],
                           ),
@@ -101,7 +122,7 @@ class CategoryDetailScreen extends StatelessWidget {
                           child: DropdownButtonFormField<CategorySortBy>(
                             initialValue: state.sortBy,
                             decoration: InputDecoration(
-                              labelText: 'Ordenar por',
+                              labelText: context.l10n.sortBy,
                               filled: true,
                               fillColor: surfaceColor,
                               border: OutlineInputBorder(
@@ -114,41 +135,59 @@ class CategoryDetailScreen extends StatelessWidget {
                               ),
                             ),
                             items: CategorySortBy.values
-                                .map((item) => DropdownMenuItem<CategorySortBy>(value: item, child: Text(item.label)))
+                                .map(
+                                  (item) => DropdownMenuItem<CategorySortBy>(
+                                    value: item,
+                                    child: Text(
+                                      item == CategorySortBy.installsLastMonth
+                                          ? context.l10n.sortMostDownloaded
+                                          : context.l10n.sortTrending,
+                                    ),
+                                  ),
+                                )
                                 .toList(growable: false),
                             onChanged: (value) {
                               if (value == null) {
                                 return;
                               }
 
-                              context.read<CategoryAppsBloc>().add(CategoryAppsSortChanged(value));
+                              context.read<CategoryAppsBloc>().add(
+                                CategoryAppsSortChanged(value),
+                              );
                             },
                           ),
                         ),
                         OutlinedButton.icon(
                           onPressed: state.status == CategoryAppsStatus.loading
                               ? null
-                              : () => context.read<CategoryAppsBloc>().add(const CategoryAppsRetried()),
+                              : () => context.read<CategoryAppsBloc>().add(
+                                  const CategoryAppsRetried(),
+                                ),
                           icon: const Icon(Icons.refresh_rounded),
-                          label: const Text('Atualizar'),
+                          label: Text(context.l10n.refresh),
                         ),
                         if (state.totalHits > 0)
                           Text(
-                            '${state.totalHits} apps',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+                            context.l10n.appsCount(state.totalHits),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: secondaryColor),
                           ),
                       ],
                     ),
                     const SizedBox(height: 22),
-                    if (state.status == CategoryAppsStatus.loading && state.apps.isEmpty)
+                    if (state.status == CategoryAppsStatus.loading &&
+                        state.apps.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 56),
                         child: Center(child: CircularProgressIndicator()),
                       )
-                    else if (state.status == CategoryAppsStatus.failure && state.apps.isEmpty)
+                    else if (state.status == CategoryAppsStatus.failure &&
+                        state.apps.isEmpty)
                       _InlineError(
-                        message: state.errorMessage ?? 'Não foi possível carregar os apps da categoria.',
-                        onRetry: () => context.read<CategoryAppsBloc>().add(const CategoryAppsRetried()),
+                        message: context.l10n.categoryAppsFailure,
+                        onRetry: () => context.read<CategoryAppsBloc>().add(
+                          const CategoryAppsRetried(),
+                        ),
                         titleColor: titleColor,
                         secondaryColor: secondaryColor,
                         surfaceColor: surfaceColor,
@@ -160,7 +199,8 @@ class CategoryDetailScreen extends StatelessWidget {
                           final width = constraints.maxWidth;
                           final columns = width >= 960 ? 2 : 1;
                           const spacing = 16.0;
-                          final cardWidth = (width - ((columns - 1) * spacing)) / columns;
+                          final cardWidth =
+                              (width - ((columns - 1) * spacing)) / columns;
 
                           return Wrap(
                             spacing: spacing,
@@ -187,32 +227,44 @@ class CategoryDetailScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           OutlinedButton.icon(
-                            onPressed: state.canGoPrevious && state.status != CategoryAppsStatus.loading
-                                ? () => context.read<CategoryAppsBloc>().add(CategoryAppsPageChanged(state.page - 1))
+                            onPressed:
+                                state.canGoPrevious &&
+                                    state.status != CategoryAppsStatus.loading
+                                ? () => context.read<CategoryAppsBloc>().add(
+                                    CategoryAppsPageChanged(state.page - 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_left_rounded),
-                            label: const Text('Anterior'),
+                            label: Text(context.l10n.previous),
                           ),
                           const SizedBox(width: 12),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 11,
+                            ),
                             decoration: BoxDecoration(
                               color: surfaceColor,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: borderColor),
                             ),
                             child: Text(
-                              'Página ${state.page} de ${state.totalPages}',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: titleColor),
+                              context.l10n.pageOf(state.page, state.totalPages),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: titleColor),
                             ),
                           ),
                           const SizedBox(width: 12),
                           FilledButton.icon(
-                            onPressed: state.canGoNext && state.status != CategoryAppsStatus.loading
-                                ? () => context.read<CategoryAppsBloc>().add(CategoryAppsPageChanged(state.page + 1))
+                            onPressed:
+                                state.canGoNext &&
+                                    state.status != CategoryAppsStatus.loading
+                                ? () => context.read<CategoryAppsBloc>().add(
+                                    CategoryAppsPageChanged(state.page + 1),
+                                  )
                                 : null,
                             icon: const Icon(Icons.chevron_right_rounded),
-                            label: const Text('Próxima'),
+                            label: Text(context.l10n.next),
                           ),
                         ],
                       ),
@@ -259,19 +311,24 @@ class _InlineError extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Não conseguimos carregar esta categoria.',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: titleColor, fontWeight: FontWeight.w700),
+            context.l10n.categoryLoadFailure,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: titleColor,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: secondaryColor),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: secondaryColor),
           ),
           const SizedBox(height: 14),
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tentar novamente'),
+            label: Text(context.l10n.retry),
           ),
         ],
       ),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/installed/bloc/installed_apps_bloc.dart';
@@ -29,16 +30,25 @@ class InstalledAppSummaryCard extends StatelessWidget {
   final bool isDark;
   final Future<void> Function(InstalledAppData app)? onUninstalled;
 
-  Future<void> onDeletePressed(BuildContext context, InstalledAppData contextApp) async {
+  Future<void> onDeletePressed(
+    BuildContext context,
+    InstalledAppData contextApp,
+  ) async {
     final installedAppsBloc = context.read<InstalledAppsBloc>();
     final confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Desinstalar app?'),
-        content: Text('Deseja remover ${contextApp.name} do sistema?'),
+        title: Text(context.l10n.uninstallAppQuestion),
+        content: Text(context.l10n.uninstallConfirmation(contextApp.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Desinstalar')),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(context.l10n.uninstall),
+          ),
         ],
       ),
     );
@@ -47,7 +57,9 @@ class InstalledAppSummaryCard extends StatelessWidget {
       return;
     }
 
-    final wasUninstalled = await installedAppsBloc.uninstallApp(contextApp.packageName);
+    final wasUninstalled = await installedAppsBloc.uninstallApp(
+      contextApp.packageName,
+    );
 
     if (!context.mounted) {
       return;
@@ -58,9 +70,9 @@ class InstalledAppSummaryCard extends StatelessWidget {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Nao foi possivel desinstalar ${contextApp.name}.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.uninstallFailure(contextApp.name))),
+    );
   }
 
   @override
@@ -80,7 +92,10 @@ class InstalledAppSummaryCard extends StatelessWidget {
           Container(
             width: 92,
             height: 92,
-            decoration: BoxDecoration(color: app.iconBackground, borderRadius: BorderRadius.circular(24)),
+            decoration: BoxDecoration(
+              color: app.iconBackground,
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: _buildAppIcon(),
           ),
           const SizedBox(height: 18),
@@ -89,12 +104,28 @@ class InstalledAppSummaryCard extends StatelessWidget {
             spacing: 6,
             runSpacing: 4,
             children: [
-              Text(app.name, style: AppTextStyles.titleMediumNormal.copyWith(color: titleColor, fontSize: 24)),
-              const Icon(Icons.verified_outlined, size: 16, color: AppColors.accent),
+              Text(
+                app.name,
+                style: AppTextStyles.titleMediumNormal.copyWith(
+                  color: titleColor,
+                  fontSize: 24,
+                ),
+              ),
+              const Icon(
+                Icons.verified_outlined,
+                size: 16,
+                color: AppColors.accent,
+              ),
             ],
           ),
           const SizedBox(height: 4),
-          Text('"${app.tagline}"', style: AppTextStyles.bodyLargeItalic.copyWith(color: secondaryColor, height: 1.35)),
+          Text(
+            '"${app.tagline}"',
+            style: AppTextStyles.bodyLargeItalic.copyWith(
+              color: secondaryColor,
+              height: 1.35,
+            ),
+          ),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
@@ -105,11 +136,16 @@ class InstalledAppSummaryCard extends StatelessWidget {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
               icon: const Icon(Icons.open_in_new_rounded, size: 18),
-              label: const Text('Abrir aplicativo'),
+              label: Text(context.l10n.openApp),
             ),
           ),
           const SizedBox(height: 10),
@@ -121,21 +157,33 @@ class InstalledAppSummaryCard extends StatelessWidget {
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: destructiveColor,
-                side: BorderSide(color: destructiveColor.withValues(alpha: 0.4)),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                side: BorderSide(
+                  color: destructiveColor.withValues(alpha: 0.4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
               ),
               icon: const Icon(Icons.delete_outline_rounded, size: 18),
-              label: const Text('Remover'),
+              label: Text(context.l10n.remove),
             ),
           ),
           const SizedBox(height: 18),
           Divider(color: borderColor),
           const SizedBox(height: 14),
-          SummaryRow(label: 'Versão', value: app.version),
-          SummaryRow(label: 'Tamanho', value: app.size),
-          SummaryRow(label: 'Licença', value: app.license),
-          SummaryRow(label: 'Categoria', value: app.category),
+          SummaryRow(label: context.l10n.version, value: app.version),
+          SummaryRow(label: context.l10n.size, value: app.size),
+          SummaryRow(label: context.l10n.license, value: app.license),
+          SummaryRow(
+            label: context.l10n.category,
+            value: app.category == 'Installed'
+                ? context.l10n.installed
+                : app.category,
+          ),
           SummaryRow(label: 'Flatpak', value: app.packageName, monospace: true),
         ],
       ),
@@ -144,7 +192,11 @@ class InstalledAppSummaryCard extends StatelessWidget {
 
   Widget _buildAppIcon() {
     final url = app.icon?.url;
-    final fallback = Icon(Icons.abc, size: 48, color: isDark ? AppColors.darkBackground : AppColors.textPrimary);
+    final fallback = Icon(
+      Icons.abc,
+      size: 48,
+      color: isDark ? AppColors.darkBackground : AppColors.textPrimary,
+    );
 
     if (url == null || url.isEmpty) {
       return fallback;
@@ -169,9 +221,17 @@ class InstalledAppSummaryCard extends StatelessWidget {
     }
 
     if (isSvg) {
-      return SvgPicture.network(url, fit: BoxFit.contain, placeholderBuilder: (context) => fallback);
+      return SvgPicture.network(
+        url,
+        fit: BoxFit.contain,
+        placeholderBuilder: (context) => fallback,
+      );
     }
 
-    return Image.network(url, fit: BoxFit.contain, errorBuilder: (context, error, stackTrace) => fallback);
+    return Image.network(
+      url,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => fallback,
+    );
   }
 }

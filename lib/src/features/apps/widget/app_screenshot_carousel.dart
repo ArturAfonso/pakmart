@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
 
 class AppScreenshotCarousel extends StatefulWidget {
@@ -57,15 +58,18 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Capturas de tela',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(color: widget.titleColor, fontWeight: FontWeight.w700),
+            context.l10n.screenshots,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: widget.titleColor,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Clique para ampliar e navegar em tela cheia.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: widget.secondaryColor),
+            context.l10n.screenshotsHint,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: widget.secondaryColor),
           ),
           const SizedBox(height: 18),
           Stack(
@@ -90,8 +94,13 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(24),
                           child: DecoratedBox(
-                            decoration: BoxDecoration(color: widget.surfaceColor),
-                            child: _NetworkScreenshot(imageUrl: screenshot.imageUrl, fit: BoxFit.cover),
+                            decoration: BoxDecoration(
+                              color: widget.surfaceColor,
+                            ),
+                            child: _NetworkScreenshot(
+                              imageUrl: screenshot.imageUrl,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -102,11 +111,17 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
               if (widget.screenshots.length > 1) ...[
                 Positioned(
                   left: 8,
-                  child: _ArrowButton(icon: Icons.chevron_left_rounded, onPressed: () => _jumpTo(_currentIndex - 1)),
+                  child: _ArrowButton(
+                    icon: Icons.chevron_left_rounded,
+                    onPressed: () => _jumpTo(_currentIndex - 1),
+                  ),
                 ),
                 Positioned(
                   right: 8,
-                  child: _ArrowButton(icon: Icons.chevron_right_rounded, onPressed: () => _jumpTo(_currentIndex + 1)),
+                  child: _ArrowButton(
+                    icon: Icons.chevron_right_rounded,
+                    onPressed: () => _jumpTo(_currentIndex + 1),
+                  ),
                 ),
               ],
             ],
@@ -116,8 +131,11 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
             children: [
               Expanded(
                 child: Text(
-                  activeScreenshot.caption ?? 'Tela ${_currentIndex + 1}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: widget.secondaryColor),
+                  activeScreenshot.caption ??
+                      context.l10n.screenNumber(_currentIndex + 1),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: widget.secondaryColor,
+                  ),
                 ),
               ),
               if (widget.screenshots.length > 1)
@@ -130,9 +148,11 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
                       width: isActive ? 22 : 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: (isActive ? widget.titleColor : widget.secondaryColor).withValues(
-                          alpha: isActive ? 1 : 0.28,
-                        ),
+                        color:
+                            (isActive
+                                    ? widget.titleColor
+                                    : widget.secondaryColor)
+                                .withValues(alpha: isActive ? 1 : 0.28),
                         borderRadius: BorderRadius.circular(999),
                       ),
                     );
@@ -152,7 +172,11 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
     }
 
     final nextIndex = (index + itemCount) % itemCount;
-    _controller.animateToPage(nextIndex, duration: const Duration(milliseconds: 260), curve: Curves.easeOutCubic);
+    _controller.animateToPage(
+      nextIndex,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _openViewer(int initialIndex) {
@@ -160,7 +184,10 @@ class _AppScreenshotCarouselState extends State<AppScreenshotCarousel> {
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.92),
       builder: (dialogContext) {
-        return _FullscreenScreenshotViewer(screenshots: widget.screenshots, initialIndex: initialIndex);
+        return _FullscreenScreenshotViewer(
+          screenshots: widget.screenshots,
+          initialIndex: initialIndex,
+        );
       },
     );
   }
@@ -180,7 +207,11 @@ class _ArrowButton extends StatelessWidget {
       child: InkWell(
         onTap: onPressed,
         borderRadius: BorderRadius.circular(999),
-        child: SizedBox(width: 42, height: 42, child: Icon(icon, color: Colors.white)),
+        child: SizedBox(
+          width: 42,
+          height: 42,
+          child: Icon(icon, color: Colors.white),
+        ),
       ),
     );
   }
@@ -198,7 +229,9 @@ class _NetworkScreenshot extends StatelessWidget {
       imageUrl,
       fit: fit,
       errorBuilder: (_, _, _) {
-        return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.white70));
+        return const Center(
+          child: Icon(Icons.broken_image_outlined, color: Colors.white70),
+        );
       },
       loadingBuilder: (context, child, progress) {
         if (progress == null) {
@@ -213,7 +246,8 @@ class _NetworkScreenshot extends StatelessWidget {
               strokeWidth: 2,
               value: progress.expectedTotalBytes == null
                   ? null
-                  : progress.cumulativeBytesLoaded / progress.expectedTotalBytes!,
+                  : progress.cumulativeBytesLoaded /
+                        progress.expectedTotalBytes!,
             ),
           ),
         );
@@ -223,16 +257,21 @@ class _NetworkScreenshot extends StatelessWidget {
 }
 
 class _FullscreenScreenshotViewer extends StatefulWidget {
-  const _FullscreenScreenshotViewer({required this.screenshots, required this.initialIndex});
+  const _FullscreenScreenshotViewer({
+    required this.screenshots,
+    required this.initialIndex,
+  });
 
   final List<AppDetailScreenshotData> screenshots;
   final int initialIndex;
 
   @override
-  State<_FullscreenScreenshotViewer> createState() => _FullscreenScreenshotViewerState();
+  State<_FullscreenScreenshotViewer> createState() =>
+      _FullscreenScreenshotViewerState();
 }
 
-class _FullscreenScreenshotViewerState extends State<_FullscreenScreenshotViewer> {
+class _FullscreenScreenshotViewerState
+    extends State<_FullscreenScreenshotViewer> {
   late final PageController _controller;
   late int _currentIndex;
 
@@ -264,10 +303,12 @@ class _FullscreenScreenshotViewerState extends State<_FullscreenScreenshotViewer
                 children: [
                   Expanded(
                     child: Text(
-                      screenshot.caption ?? 'Captura ${_currentIndex + 1}',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                      screenshot.caption ??
+                          context.l10n.screenshotNumber(_currentIndex + 1),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -325,7 +366,9 @@ class _FullscreenScreenshotViewerState extends State<_FullscreenScreenshotViewer
             const SizedBox(height: 8),
             Text(
               '${_currentIndex + 1} / ${widget.screenshots.length}',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
             ),
             const SizedBox(height: 16),
           ],
@@ -337,6 +380,10 @@ class _FullscreenScreenshotViewerState extends State<_FullscreenScreenshotViewer
   void _jumpTo(int index) {
     final itemCount = widget.screenshots.length;
     final nextIndex = (index + itemCount) % itemCount;
-    _controller.animateToPage(nextIndex, duration: const Duration(milliseconds: 260), curve: Curves.easeOutCubic);
+    _controller.animateToPage(
+      nextIndex,
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+    );
   }
 }
