@@ -75,7 +75,7 @@ class InstallCard extends StatelessWidget {
                   child: FilledButton.icon(
                     onPressed: isBusy ? null : onOpenPressed,
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.accent,
+                      backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
