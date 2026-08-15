@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/locale/app_language_cubit.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_cubit.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/features/preferences/widgets/choice_preference_tile.dart';
 import 'package:pakmart/src/features/preferences/widgets/preference_section.dart';
+import 'package:pakmart/src/features/preferences/widgets/switch_preference_tile.dart';
 import 'package:pakmart/src/features/preferences/widgets/theme_mode_card.dart';
 
 class PreferencesScreen extends StatefulWidget {
@@ -17,15 +19,12 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
+  final String _selectedSource = 'flathub';
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
-    final titleColor = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.textPrimary;
-    final secondaryColor = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
+    final titleColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final secondaryColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
 
     return SafeArea(
       top: false,
@@ -79,19 +78,23 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       ),
                     ],
                   ),
-                ),
+                ), */
                 const SizedBox(height: 36),
-                PreferenceSection(
-                  title: 'Confiança',
-                  description: 'Controle a visibilidade de aplicativos não verificados pelo Flathub.',
-                  child: SwitchPreferenceTile(
-                    title: 'Mostrar Flatpaks não verificados',
-                    subtitle: 'Recomendado para usuários avançados',
-                    value: _showUnverified,
-                    onChanged: (value) => setState(() => _showUnverified = value),
-                  ),
+                BlocBuilder<AppPreferencesCubit, AppPreferencesState>(
+                  builder: (context, preferencesState) {
+                    return PreferenceSection(
+                      title: context.l10n.trust,
+                      description: context.l10n.trustDescription,
+                      child: SwitchPreferenceTile(
+                        title: context.l10n.showUnverifiedApps,
+                        subtitle: context.l10n.showUnverifiedAppsDescription,
+                        value: preferencesState.showUnverifiedApps,
+                        onChanged: (value) => context.read<AppPreferencesCubit>().setShowUnverifiedApps(value),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 36),
+                /* const SizedBox(height: 36),
                 PreferenceSection(
                   title: 'Fonte de dados',
                   description: 'De onde a Livraria deve carregar os apps.',
@@ -101,7 +104,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         title: 'Flathub',
                         subtitle: 'Padrão',
                         selected: _selectedSource == 'flathub',
-                        onTap: () => setState(() => _selectedSource = 'flathub'),
+                        onTap: () =>
+                            setState(() => _selectedSource = 'flathub'),
                       ),
                       const SizedBox(height: 12),
                       ChoicePreferenceTile(
@@ -137,21 +141,12 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         children: [
                           ChoicePreferenceTile(
                             title: context.l10n.useSystemLanguage,
-                            subtitle: context.l10n.currentLanguage(
-                              languageState.localeCode,
-                            ),
-                            selected:
-                                languageState.source ==
-                                AppLanguageSource.system,
-                            onTap: () => context
-                                .read<AppLanguageCubit>()
-                                .useSystemLanguage(),
+                            subtitle: context.l10n.currentLanguage(languageState.localeCode),
+                            selected: languageState.source == AppLanguageSource.system,
+                            onTap: () => context.read<AppLanguageCubit>().useSystemLanguage(),
                           ),
                           const SizedBox(height: 12),
-                          for (final localeCode in const [
-                            'pt_BR',
-                            'en_US',
-                          ]) ...[
+                          for (final localeCode in const ['pt_BR', 'en_US']) ...[
                             ChoicePreferenceTile(
                               title: localeCode == 'pt_BR'
                                   ? context.l10n.portugueseBrazil
@@ -160,15 +155,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                                   ? context.l10n.portugueseBrazilDescription
                                   : context.l10n.englishUnitedStatesDescription,
                               selected:
-                                  languageState.source ==
-                                      AppLanguageSource.manual &&
+                                  languageState.source == AppLanguageSource.manual &&
                                   languageState.localeCode == localeCode,
-                              onTap: () => context
-                                  .read<AppLanguageCubit>()
-                                  .setManualLanguage(localeCode),
+                              onTap: () => context.read<AppLanguageCubit>().setManualLanguage(localeCode),
                             ),
-                            if (localeCode != 'en_US')
-                              const SizedBox(height: 12),
+                            if (localeCode != 'en_US') const SizedBox(height: 12),
                           ],
                         ],
                       ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_repository.dart';
 import 'package:pakmart/src/features/categories/data/categories_api.dart';
 import 'package:pakmart/src/features/categories/models/category_remote_models.dart';
 
 class CategoriesRepository {
-  CategoriesRepository(this._api);
+  CategoriesRepository(this._api, this._preferences);
 
   final CategoriesApi _api;
+  final AppPreferencesRepository _preferences;
 
   Future<List<CategoryShelfData>> fetchCategories() async {
     final ids = await _api.fetchCategories();
@@ -21,8 +23,29 @@ class CategoriesRepository {
     required int page,
     int perPage = 24,
     CategorySortBy? sortBy,
-  }) {
-    return _api.fetchCategoryApps(category: category, page: page, perPage: perPage, sortBy: sortBy);
+  }) async {
+    final response = await _api.fetchCategoryApps(
+      category: category,
+      page: page,
+      perPage: perPage,
+      sortBy: sortBy,
+    );
+    if (response == null || _preferences.showUnverifiedApps) {
+      return response;
+    }
+
+    final visibleApps = response.apps
+        .where((app) => app.verified)
+        .take(perPage)
+        .toList(growable: false);
+
+    return CategoryAppsPageData(
+      page: response.page,
+      perPage: perPage,
+      totalPages: response.totalPages,
+      totalHits: response.totalHits,
+      apps: visibleApps,
+    );
   }
 
   CategoryShelfData resolveCategoryPresentation(String categoryId) {
@@ -63,7 +86,11 @@ class CategoriesRepository {
 
     final words = normalized.split(RegExp(r'\s+'));
     return words
-        .map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+        .map(
+          (word) => word.isEmpty
+              ? word
+              : '${word[0].toUpperCase()}${word.substring(1)}',
+        )
         .join(' ');
   }
 }

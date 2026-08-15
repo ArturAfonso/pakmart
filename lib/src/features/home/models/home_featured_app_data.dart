@@ -7,6 +7,7 @@ class HomeFeaturedAppData {
     required this.tagline,
     required this.flathubUrl,
     required this.iconBackground,
+    required this.verified,
     this.heroGradientStart,
     this.heroGradientEnd,
     this.iconData,
@@ -19,6 +20,7 @@ class HomeFeaturedAppData {
   final String tagline;
   final String flathubUrl;
   final Color iconBackground;
+  final bool verified;
   final Color? heroGradientStart;
   final Color? heroGradientEnd;
   final IconData? iconData;

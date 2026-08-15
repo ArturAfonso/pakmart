@@ -5,16 +5,30 @@ import 'package:pakmart/src/core/locale/app_language_repository.dart';
 import 'package:pakmart/src/features/search/models/search_app_data.dart';
 
 class SearchApi {
-  SearchApi(this._languageRepository, {HttpClient? httpClient}) : _httpClient = httpClient ?? HttpClient();
+  SearchApi(this._languageRepository, {HttpClient? httpClient})
+    : _httpClient = httpClient ?? HttpClient();
 
   final AppLanguageRepository _languageRepository;
   final HttpClient _httpClient;
 
-  Future<SearchPageData?> search({required String query, required int page, int perPage = 24}) async {
+  Future<SearchPageData?> search({
+    required String query,
+    required int page,
+    required bool showUnverifiedApps,
+    int perPage = 24,
+  }) async {
     final locale = await _resolveApiLocaleCode();
     final uri = Uri.https('flathub.org', '/api/v2/search', {'locale': locale});
 
-    final payload = <String, dynamic>{'query': query, 'page': page, 'hits_per_page': perPage};
+    final payload = <String, dynamic>{
+      'query': query,
+      'page': page,
+      'hits_per_page': perPage,
+      if (!showUnverifiedApps)
+        'filters': const [
+          {'filterType': 'verification_verified', 'value': 'true'},
+        ],
+    };
 
     final response = await _postJson(uri, payload);
     if (response == null) {
@@ -27,7 +41,11 @@ class SearchApi {
     }
 
     final apps = hits
-        .map((item) => item is Map<String, dynamic> ? SearchAppData.fromJson(item) : null)
+        .map(
+          (item) => item is Map<String, dynamic>
+              ? SearchAppData.fromJson(item)
+              : null,
+        )
         .whereType<SearchAppData>()
         .toList(growable: false);
 
@@ -41,7 +59,10 @@ class SearchApi {
     );
   }
 
-  Future<Map<String, dynamic>?> _postJson(Uri uri, Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>?> _postJson(
+    Uri uri,
+    Map<String, dynamic> payload,
+  ) async {
     try {
       final request = await _httpClient.postUrl(uri);
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');

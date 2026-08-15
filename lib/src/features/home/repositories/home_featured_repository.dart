@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
+import 'package:pakmart/src/core/models/flathub_app_verification.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_repository.dart';
 import 'package:pakmart/src/features/home/data/home_featured_api.dart';
 import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
 import 'package:pakmart/src/features/home/models/home_popular_app_data.dart';
 
 class HomeFeaturedRepository {
-  HomeFeaturedRepository(this._api);
+  HomeFeaturedRepository(this._api, this._preferences);
 
   final HomeFeaturedApi _api;
+  final AppPreferencesRepository _preferences;
 
   Future<List<String>> fetchAppsOfTheWeek({DateTime? date}) {
     return _api.fetchAppsOfTheWeek(date: date ?? DateTime.now());
@@ -19,7 +22,12 @@ class HomeFeaturedRepository {
       return null;
     }
 
-    return _toFeaturedData(info);
+    final verified = isFlathubAppVerified(info);
+    if (!_preferences.canDisplayApp(verified: verified)) {
+      return null;
+    }
+
+    return _toFeaturedData(info, verified: verified);
   }
 
   Future<HomePopularCollectionPageData?> fetchCollectionPage({
@@ -27,12 +35,17 @@ class HomeFeaturedRepository {
     required int page,
     int perPage = 24,
   }) async {
-    final response = await _api.fetchCollectionPage(collection: collection, page: page, perPage: perPage);
+    final response = await _api.fetchCollectionPage(
+      collection: collection,
+      page: page,
+      perPage: perPage,
+    );
     if (response == null) {
       return null;
     }
 
     final sanitizedApps = response.apps
+        .where((app) => _preferences.canDisplayApp(verified: app.verified))
         .map(
           (app) => HomePopularAppData(
             appId: app.appId,
@@ -48,26 +61,33 @@ class HomeFeaturedRepository {
             isMobileFriendly: app.isMobileFriendly,
           ),
         )
+        .take(perPage)
         .toList(growable: false);
 
     return HomePopularCollectionPageData(
       collection: response.collection,
       page: response.page,
-      perPage: response.perPage,
+      perPage: perPage,
       totalPages: response.totalPages,
       totalHits: response.totalHits,
       apps: sanitizedApps,
     );
   }
 
-  HomeFeaturedAppData _toFeaturedData(FlathubAppInfo info) {
+  HomeFeaturedAppData _toFeaturedData(
+    FlathubAppInfo info, {
+    required bool verified,
+  }) {
     final iconUrl = _chooseIconUrl(info);
     final gradient = _resolveHeroGradient(info);
 
     return HomeFeaturedAppData(
       id: info.id,
       name: info.name,
-      tagline: _sanitizeText(info.summary) ?? _sanitizeText(info.description) ?? 'Aplicativo em destaque no Flathub.',
+      tagline:
+          _sanitizeText(info.summary) ??
+          _sanitizeText(info.description) ??
+          'Aplicativo em destaque no Flathub.',
       flathubUrl: 'https://flathub.org/apps/${Uri.encodeComponent(info.id)}',
       iconBackground: _resolveBackgroundColor(info),
       heroGradientStart: gradient.$1,
@@ -75,6 +95,7 @@ class HomeFeaturedRepository {
       iconUrl: iconUrl,
       iconData: Icons.apps_rounded,
       detailRouteAppId: info.id,
+      verified: verified,
     );
   }
 

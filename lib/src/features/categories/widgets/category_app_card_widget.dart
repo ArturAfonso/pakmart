@@ -99,6 +99,15 @@ class CategoryAppCard extends StatelessWidget {
                             Icons.verified_outlined,
                             size: 15,
                             color: AppColors.accent,
+                          )
+                        else
+                          Tooltip(
+                            message: context.l10n.unverifiedApp,
+                            child: const Icon(
+                              Icons.gpp_maybe_outlined,
+                              size: 15,
+                              color: Color(0xFFD69A16),
+                            ),
                           ),
                       ],
                     ),

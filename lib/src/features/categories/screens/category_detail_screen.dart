@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/l10n/l10n.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_cubit.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -18,6 +19,10 @@ class CategoryDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
+    final showUnverifiedApps = context
+        .watch<AppPreferencesCubit>()
+        .state
+        .showUnverifiedApps;
     final titleColor = isDark
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
@@ -166,7 +171,7 @@ class CategoryDetailScreen extends StatelessWidget {
                           icon: const Icon(Icons.refresh_rounded),
                           label: Text(context.l10n.refresh),
                         ),
-                        if (state.totalHits > 0)
+                        if (showUnverifiedApps && state.totalHits > 0)
                           Text(
                             context.l10n.appsCount(state.totalHits),
                             style: Theme.of(context).textTheme.bodyMedium

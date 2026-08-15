@@ -730,6 +730,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferencesTitle => 'Preferences';
 
   @override
+  String get trust => 'Trust';
+
+  @override
+  String get trustDescription =>
+      'Control the visibility of applications that have not been verified by Flathub.';
+
+  @override
+  String get showUnverifiedApps => 'Show unverified apps';
+
+  @override
+  String get showUnverifiedAppsDescription =>
+      'Turn this off to display verified applications only.';
+
+  @override
+  String get unverifiedApp => 'UNVERIFIED APP';
+
+  @override
   String get appLanguage => 'App language';
 
   @override

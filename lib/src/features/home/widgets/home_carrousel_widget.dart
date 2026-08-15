@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pakmart/l10n/l10n.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
+import 'package:pakmart/src/features/apps/widget/app_verification_badge.dart';
 import 'package:pakmart/src/features/home/models/home_featured_app_data.dart';
 import 'package:pakmart/src/features/home/widgets/carrousel_arrow_button.dart';
 import 'package:pakmart/src/routes/app_routes.dart';
@@ -147,31 +148,43 @@ class _HomeCarouselState extends State<HomeCarousel> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 7,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.16),
-                                    borderRadius: BorderRadius.circular(999),
-                                    border: Border.all(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.2,
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 7,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.16,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
+                                        border: Border.all(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.2,
+                                          ),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        context.l10n.featuredLabel,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 1.2,
+                                            ),
                                       ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    context.l10n.featuredLabel,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 1.2,
-                                        ),
-                                  ),
+                                    if (!app.verified)
+                                      const UnverifiedAppBadge(),
+                                  ],
                                 ),
                                 Expanded(
                                   child: Row(

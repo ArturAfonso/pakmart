@@ -20,12 +20,8 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final currentLocation = GoRouterState.of(context).matchedLocation;
-    final selectedColor = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.textPrimary;
-    final unselectedColor = isDark
-        ? AppColors.darkTextSecondary
-        : AppColors.textSecondary;
+    final selectedColor = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final unselectedColor = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
 
     return AppBar(
       title: Row(
@@ -44,13 +40,16 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
           ),  */
-          // Image.asset('assets/icons/logo-custom.png', width: 80, height: 80),
-          Text(
-            'Pakmart',
-            style: AppTextStyles.titleMediumItalic.copyWith(
-              color: AppColors.accent,
+          InkWell(
+            onTap: () => context.goNamed(AppRoutes.HOME),
+            child: Row(
+              children: [
+                Text('Pakmart', style: AppTextStyles.titleMediumItalic.copyWith(color: AppColors.accent)),
+                Image.asset('assets/icons/logo.png', height: 30),
+              ],
             ),
           ),
+
           const SizedBox(width: 24),
           Flexible(
             child: SingleChildScrollView(
@@ -68,18 +67,14 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   MenuButton(
                     label: context.l10n.categories,
-                    selected: currentLocation.startsWith(
-                      AppRoutes.categoriesPath,
-                    ),
+                    selected: currentLocation.startsWith(AppRoutes.categoriesPath),
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onPressed: () => context.goNamed(AppRoutes.CATEGORIES),
                   ),
                   MenuButton(
                     label: context.l10n.installed,
-                    selected: currentLocation.startsWith(
-                      AppRoutes.installedPath,
-                    ),
+                    selected: currentLocation.startsWith(AppRoutes.installedPath),
                     selectedColor: selectedColor,
                     unselectedColor: unselectedColor,
                     onPressed: () => context.goNamed(AppRoutes.INSTALLED),
@@ -106,9 +101,7 @@ class MainAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           icon: Icon(
             isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.textSecondary,
+            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
           ),
           tooltip: context.l10n.themeToggleTooltip,
         ),

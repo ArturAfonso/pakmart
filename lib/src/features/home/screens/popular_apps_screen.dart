@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pakmart/l10n/l10n.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_cubit.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
@@ -17,6 +18,10 @@ class PopularAppsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeCubit>().state == ThemeMode.dark;
+    final showUnverifiedApps = context
+        .watch<AppPreferencesCubit>()
+        .state
+        .showUnverifiedApps;
     final titleColor = isDark
         ? AppColors.darkTextPrimary
         : AppColors.textPrimary;
@@ -118,7 +123,7 @@ class PopularAppsScreen extends StatelessWidget {
                           icon: const Icon(Icons.refresh_rounded),
                           label: Text(context.l10n.refresh),
                         ),
-                        if (state.totalHits > 0)
+                        if (showUnverifiedApps && state.totalHits > 0)
                           Text(
                             context.l10n.appsFound(state.totalHits),
                             style: Theme.of(context).textTheme.bodyMedium
@@ -322,6 +327,15 @@ class _PopularAppCard extends StatelessWidget {
                             Icons.verified_rounded,
                             size: 14,
                             color: AppColors.accent,
+                          )
+                        else
+                          Tooltip(
+                            message: context.l10n.unverifiedApp,
+                            child: const Icon(
+                              Icons.gpp_maybe_outlined,
+                              size: 14,
+                              color: Color(0xFFD69A16),
+                            ),
                           ),
                       ],
                     ),

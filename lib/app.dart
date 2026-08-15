@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pakmart/l10n/l10n.dart';
 
 import 'package:pakmart/src/core/locale/app_language_cubit.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_cubit.dart';
 import 'package:pakmart/src/core/theme/app_theme.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/di/injector.dart';
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<ThemeCubit>(create: (_) => sl<ThemeCubit>()..loadTheme()),
         BlocProvider<AppLanguageCubit>(
           create: (_) => sl<AppLanguageCubit>()..loadLanguage(),
+        ),
+        BlocProvider<AppPreferencesCubit>(
+          create: (_) => sl<AppPreferencesCubit>(),
         ),
         BlocProvider(create: (_) => sl<HomeFeaturedBloc>()),
         BlocProvider(

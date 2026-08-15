@@ -1412,6 +1412,36 @@ abstract class AppLocalizations {
   /// **'Preferências'**
   String get preferencesTitle;
 
+  /// No description provided for @trust.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confiança'**
+  String get trust;
+
+  /// No description provided for @trustDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Controle a visibilidade de aplicativos que não foram verificados pelo Flathub.'**
+  String get trustDescription;
+
+  /// No description provided for @showUnverifiedApps.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostrar apps não verificados'**
+  String get showUnverifiedApps;
+
+  /// No description provided for @showUnverifiedAppsDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desative para exibir somente aplicativos verificados.'**
+  String get showUnverifiedAppsDescription;
+
+  /// No description provided for @unverifiedApp.
+  ///
+  /// In pt, this message translates to:
+  /// **'APP NÃO VERIFICADO'**
+  String get unverifiedApp;
+
   /// No description provided for @appLanguage.
   ///
   /// In pt, this message translates to:

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pakmart/src/core/locale/app_language_cubit.dart';
 import 'package:pakmart/src/core/locale/app_language_local_datasource.dart';
 import 'package:pakmart/src/core/locale/app_language_repository.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_cubit.dart';
+import 'package:pakmart/src/core/preferences/app_preferences_repository.dart';
 import 'package:pakmart/src/core/theme/theme_cubit.dart';
 import 'package:pakmart/src/core/theme/theme_repository.dart';
 import 'package:pakmart/src/core/theme/themelocal_datasource.dart';
@@ -38,20 +40,42 @@ Future<void> configureDependencies() async {
 
   final prefs = await SharedPreferences.getInstance();
   sl.registerSingleton<SharedPreferences>(prefs);
-  sl.registerLazySingleton<ThemeLocalDataSource>(() => ThemeLocalDataSourceImpl(sl()));
+  sl.registerLazySingleton<AppPreferencesRepository>(
+    () => AppPreferencesRepository(sl()),
+  );
+  sl.registerFactory<AppPreferencesCubit>(() => AppPreferencesCubit(sl()));
+  sl.registerLazySingleton<ThemeLocalDataSource>(
+    () => ThemeLocalDataSourceImpl(sl()),
+  );
   sl.registerLazySingleton<ThemeRepository>(() => ThemeRepositoryImpl(sl()));
   sl.registerFactory<ThemeCubit>(() => ThemeCubit(sl()));
 
-  sl.registerLazySingleton<AppLanguageLocalDataSource>(() => AppLanguageLocalDataSourceImpl(sl()));
-  sl.registerLazySingleton<AppLanguageRepository>(() => AppLanguageRepositoryImpl(sl()));
+  sl.registerLazySingleton<AppLanguageLocalDataSource>(
+    () => AppLanguageLocalDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<AppLanguageRepository>(
+    () => AppLanguageRepositoryImpl(sl()),
+  );
   sl.registerFactory<AppLanguageCubit>(() => AppLanguageCubit(sl()));
 
-  sl.registerLazySingleton<InstallationDiscoveryService>(() => const InstallationDiscoveryService());
-  sl.registerLazySingleton<InstalledAppInventoryService>(() => InstalledAppInventoryService(sl()));
-  sl.registerLazySingleton<LocalMetadataReader>(() => const LocalMetadataReader());
-  sl.registerLazySingleton<StaticPermissionsReader>(() => const StaticPermissionsReader());
-  sl.registerLazySingleton<DynamicPermissionsReader>(() => const DynamicPermissionsReader());
-  sl.registerLazySingleton<InstalledAppAssembler>(() => const InstalledAppAssembler());
+  sl.registerLazySingleton<InstallationDiscoveryService>(
+    () => const InstallationDiscoveryService(),
+  );
+  sl.registerLazySingleton<InstalledAppInventoryService>(
+    () => InstalledAppInventoryService(sl()),
+  );
+  sl.registerLazySingleton<LocalMetadataReader>(
+    () => const LocalMetadataReader(),
+  );
+  sl.registerLazySingleton<StaticPermissionsReader>(
+    () => const StaticPermissionsReader(),
+  );
+  sl.registerLazySingleton<DynamicPermissionsReader>(
+    () => const DynamicPermissionsReader(),
+  );
+  sl.registerLazySingleton<InstalledAppAssembler>(
+    () => const InstalledAppAssembler(),
+  );
   sl.registerLazySingleton<InstalledAppsRepositoryNew>(
     () => InstalledAppsRepositoryNew(
       discoveryService: sl(),
@@ -71,15 +95,21 @@ Future<void> configureDependencies() async {
   sl.registerFactory<AppInfoCubit>(() => AppInfoCubit(sl()));
 
   sl.registerLazySingleton<HomeFeaturedApi>(() => HomeFeaturedApi(sl()));
-  sl.registerLazySingleton<HomeFeaturedRepository>(() => HomeFeaturedRepository(sl()));
+  sl.registerLazySingleton<HomeFeaturedRepository>(
+    () => HomeFeaturedRepository(sl(), sl()),
+  );
   sl.registerFactory<HomeFeaturedBloc>(() => HomeFeaturedBloc(sl()));
   sl.registerFactory<PopularAppsBloc>(() => PopularAppsBloc(sl()));
 
   sl.registerLazySingleton<CategoriesApi>(() => CategoriesApi(sl()));
-  sl.registerLazySingleton<CategoriesRepository>(() => CategoriesRepository(sl()));
+  sl.registerLazySingleton<CategoriesRepository>(
+    () => CategoriesRepository(sl(), sl()),
+  );
   sl.registerFactory<CategoriesBloc>(() => CategoriesBloc(sl()));
 
   sl.registerLazySingleton<SearchApi>(() => SearchApi(sl()));
-  sl.registerLazySingleton<SearchRepository>(() => SearchRepository(sl()));
+  sl.registerLazySingleton<SearchRepository>(
+    () => SearchRepository(sl(), sl()),
+  );
   sl.registerFactory<SearchBloc>(() => SearchBloc(sl()));
 }

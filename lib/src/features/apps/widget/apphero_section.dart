@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pakmart/l10n/l10n.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/core/theme/app_styles.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
+import 'package:pakmart/src/features/apps/widget/app_verification_badge.dart';
 
 class AppHeroSection extends StatelessWidget {
   const AppHeroSection({
@@ -117,36 +117,7 @@ class _AppDetailsText extends StatelessWidget {
                 height: 1.02,
               ),
             ),
-            if (app.verified)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.verified_outlined,
-                      size: 14,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      context.l10n.verified,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            if (!app.verified) const UnverifiedAppBadge(),
           ],
         ),
         const SizedBox(height: 6),

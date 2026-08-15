@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pakmart/src/core/models/flathub_app_info_model.dart';
+import 'package:pakmart/src/core/models/flathub_app_verification.dart';
 import 'package:pakmart/src/core/theme/app_colors.dart';
 import 'package:pakmart/src/features/apps/data/app_info_api.dart';
 import 'package:pakmart/src/features/apps/models/app_detail_data.dart';
 
-enum AppInfoLoadFailureReason { notFound, offline, server, invalidData, unknown }
+enum AppInfoLoadFailureReason {
+  notFound,
+  offline,
+  server,
+  invalidData,
+  unknown,
+}
 
 class AppInfoLoadException implements Exception {
   const AppInfoLoadException(this.reason);
@@ -34,7 +41,13 @@ class AppInfoRepository {
       throw const AppInfoLoadException(AppInfoLoadFailureReason.invalidData);
     }
 
-    return _fromRemote(routeAppId: routeAppId, remoteAppId: remoteAppId, info: info, summary: summary, stats: stats);
+    return _fromRemote(
+      routeAppId: routeAppId,
+      remoteAppId: remoteAppId,
+      info: info,
+      summary: summary,
+      stats: stats,
+    );
   }
 
   Future<Map<String, dynamic>?> _safeFetchSummary(String appId) async {
@@ -90,17 +103,22 @@ class AppInfoRepository {
       routeAppId: routeAppId,
       appId: info.id,
       name: info.name,
-      developerName: _sanitizeText(info.developerName) ?? 'Desenvolvedor desconhecido',
-      tagline: _sanitizeText(info.summary) ?? _sanitizeText(info.description) ?? 'Aplicativo disponivel no Flathub.',
+      developerName:
+          _sanitizeText(info.developerName) ?? 'Desenvolvedor desconhecido',
+      tagline:
+          _sanitizeText(info.summary) ??
+          _sanitizeText(info.description) ??
+          'Aplicativo disponivel no Flathub.',
       description:
-          _sanitizeDescription(info.description) ?? 'Nenhuma descricao detalhada disponivel para este aplicativo.',
+          _sanitizeDescription(info.description) ??
+          'Nenhuma descricao detalhada disponivel para este aplicativo.',
       fallbackIcon: null,
       iconUrl: _chooseIconUrl(info),
       iconBackground: _resolveBackgroundColor(info),
       hasRemoteData: true,
       heroGradientStart: gradient.$1,
       heroGradientEnd: gradient.$2,
-      verified: _isVerified(info),
+      verified: isFlathubAppVerified(info),
       isMobileFriendly: info.isMobileFriendly ?? false,
       supportsDesktop: _supportsDesktop(info),
       version: _sanitizeText(release?.version),
@@ -108,11 +126,17 @@ class AppInfoRepository {
       categoryLabel: _resolveCategoryLabel(info.categories),
       downloadSizeLabel: _formatBytes(_asInt(summary?['download_size'])),
       installedSizeLabel: _formatBytes(_asInt(summary?['installed_size'])),
-      runtimeInstalledSizeLabel: _formatBytes(_asInt(summaryMetadata?['runtimeInstalledSize'])),
-      runtimeName: _sanitizeText(_asString(summaryMetadata?['runtimeName'])) ?? info.bundle?.runtime,
+      runtimeInstalledSizeLabel: _formatBytes(
+        _asInt(summaryMetadata?['runtimeInstalledSize']),
+      ),
+      runtimeName:
+          _sanitizeText(_asString(summaryMetadata?['runtimeName'])) ??
+          info.bundle?.runtime,
       latestReleaseVersion: _sanitizeText(release?.version),
       latestReleaseDescription: _sanitizeDescription(release?.description),
-      downloadsLastMonth: _asInt(stats?['installs_last_month']) ?? _asInt(stats?['downloads_last_month']),
+      downloadsLastMonth:
+          _asInt(stats?['installs_last_month']) ??
+          _asInt(stats?['downloads_last_month']),
       totalInstalls: _asInt(stats?['installs_total']),
       flatpakRef: info.bundle?.value ?? remoteAppId,
       screenshots: _mapScreenshots(info.screenshots),
@@ -120,7 +144,9 @@ class AppInfoRepository {
     );
   }
 
-  List<AppDetailScreenshotData> _mapScreenshots(List<FlathubScreenshot>? screenshots) {
+  List<AppDetailScreenshotData> _mapScreenshots(
+    List<FlathubScreenshot>? screenshots,
+  ) {
     if (screenshots == null || screenshots.isEmpty) {
       return const <AppDetailScreenshotData>[];
     }
@@ -196,17 +222,23 @@ class AppInfoRepository {
     return releases.first;
   }
 
-  FlathubScreenshotSize? _pickScreenshotSize(List<FlathubScreenshotSize> sizes) {
+  FlathubScreenshotSize? _pickScreenshotSize(
+    List<FlathubScreenshotSize> sizes,
+  ) {
     if (sizes.isEmpty) {
       return null;
     }
 
     final sorted = List<FlathubScreenshotSize>.from(sizes)
       ..sort((a, b) {
-        final aArea = (int.tryParse(a.width) ?? 0) * (int.tryParse(a.height) ?? 0);
-        final bArea = (int.tryParse(b.width) ?? 0) * (int.tryParse(b.height) ?? 0);
+        final aArea =
+            (int.tryParse(a.width) ?? 0) * (int.tryParse(a.height) ?? 0);
+        final bArea =
+            (int.tryParse(b.width) ?? 0) * (int.tryParse(b.height) ?? 0);
         if (aArea == bArea) {
-          return (int.tryParse(b.scale) ?? 1).compareTo(int.tryParse(a.scale) ?? 1);
+          return (int.tryParse(b.scale) ?? 1).compareTo(
+            int.tryParse(a.scale) ?? 1,
+          );
         }
         return bArea.compareTo(aArea);
       });
@@ -302,24 +334,6 @@ class AppInfoRepository {
     }
 
     return Color(value);
-  }
-
-  bool _isVerified(FlathubAppInfo info) {
-    final metadata = info.metadata;
-    if (metadata == null || metadata.isEmpty) {
-      return false;
-    }
-
-    final direct = metadata['flathub::verification::verified'];
-    if (direct is bool) {
-      return direct;
-    }
-    if (direct is String) {
-      final value = direct.toLowerCase();
-      return value == 'true' || value == '1' || value == 'yes';
-    }
-
-    return metadata.keys.any((key) => key.toLowerCase().contains('verification'));
   }
 
   bool _supportsDesktop(FlathubAppInfo info) {

@@ -13,12 +13,26 @@ class HomeFeaturedBloc extends Bloc<HomeFeaturedEvent, HomeFeaturedState> {
 
   final HomeFeaturedRepository _repository;
 
-  Future<void> _onRequested(HomeFeaturedRequested event, Emitter<HomeFeaturedState> emit) async {
-    emit(state.copyWith(status: HomeFeaturedStatus.loading, errorMessage: null));
+  Future<void> _onRequested(
+    HomeFeaturedRequested event,
+    Emitter<HomeFeaturedState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        status: HomeFeaturedStatus.loading,
+        apps: const <HomeFeaturedAppData>[],
+        errorMessage: null,
+      ),
+    );
 
     final appIds = await _repository.fetchAppsOfTheWeek();
     if (appIds.isEmpty) {
-      emit(state.copyWith(status: HomeFeaturedStatus.failure, errorMessage: 'Nenhum app em destaque encontrado.'));
+      emit(
+        state.copyWith(
+          status: HomeFeaturedStatus.failure,
+          errorMessage: 'Nenhum app em destaque encontrado.',
+        ),
+      );
       return;
     }
 
@@ -37,15 +51,24 @@ class HomeFeaturedBloc extends Bloc<HomeFeaturedEvent, HomeFeaturedState> {
         emit(
           state.copyWith(
             status: HomeFeaturedStatus.loading,
-            apps: ordered.whereType<HomeFeaturedAppData>().toList(growable: false),
+            apps: ordered.whereType<HomeFeaturedAppData>().toList(
+              growable: false,
+            ),
           ),
         );
       }
     }
 
-    final resolved = ordered.whereType<HomeFeaturedAppData>().toList(growable: false);
+    final resolved = ordered.whereType<HomeFeaturedAppData>().toList(
+      growable: false,
+    );
     if (resolved.isEmpty) {
-      emit(state.copyWith(status: HomeFeaturedStatus.failure, errorMessage: 'Falha ao carregar apps destacados.'));
+      emit(
+        state.copyWith(
+          status: HomeFeaturedStatus.failure,
+          errorMessage: 'Falha ao carregar apps destacados.',
+        ),
+      );
       return;
     }
 
